@@ -66,7 +66,7 @@
 using namespace std;
 
 namespace {
-    const int MAX_OUTBOUND_CONNECTIONS = 16;
+    const int MAX_OUTBOUND_CONNECTIONS = 1216;
     const int MAX_INBOUND_FROMIP = 5;
 
     struct ListenSocket {
@@ -1482,7 +1482,7 @@ void ThreadOpenAddedConnections()
                 OpenNetworkConnection(addr, &grant, strAddNode.c_str());
                 MilliSleep(500);
             }
-            MilliSleep(120000); // Retry every 2 minutes
+            MilliSleep(30000); // Retry every 30 seconds
         }
     }
 
@@ -1533,7 +1533,7 @@ void ThreadOpenAddedConnections()
             OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
             MilliSleep(500);
         }
-        MilliSleep(120000); // Retry every 2 minutes
+        MilliSleep(30000); // Retry every 30 seconds
     }
 }
 
