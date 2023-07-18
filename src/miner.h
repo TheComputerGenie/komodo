@@ -61,7 +61,7 @@ CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey, int32_t nHeight, 
 boost::optional<CScript> GetMinerScriptPubKey();
 CBlockTemplate* CreateNewBlockWithKey();
 #endif
-
+inline std::string KOMODO_LASTMINED_HASH;
 #ifdef ENABLE_MINING
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
