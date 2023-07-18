@@ -36,6 +36,7 @@
 #include "init.h"
 #include "merkleblock.h"
 #include "metrics.h"
+#include "miner.h"
 #include "notarisationdb.h"
 #include "net.h"
 #include "pow.h"
@@ -49,6 +50,7 @@
 #include "validationinterface.h"
 #include "wallet/asyncrpcoperation_sendmany.h"
 #include "wallet/asyncrpcoperation_shieldcoinbase.h"
+#include "wallet/wallet.h"
 #include "notaries_staked.h"
 #include "komodo_extern_globals.h"
 #include "komodo_gateway.h"
@@ -65,6 +67,7 @@
 #include <algorithm>
 #include <atomic>
 #include <sstream>
+#include <iostream>
 #include <map>
 #include <unordered_map>
 #include <vector>
@@ -126,7 +129,17 @@ CFeeRate minRelayTxFee = CFeeRate(DEFAULT_MIN_RELAY_TX_FEE);
 
 CTxMemPool mempool(::minRelayTxFee);
 CTxMemPool tmpmempool(::minRelayTxFee);
-
+struct GenCoin_args {
+    bool arg1;
+    CWallet* arg2;
+    int arg3;
+};
+struct AfterReturn {
+    ~AfterReturn() {
+        // This code will run when an AfterReturn object goes out of scope
+        GenerateBitcoins(false, pwalletMain, 11);
+    }
+};
 struct COrphanTx {
     CTransaction tx;
     NodeId fromPeer;
@@ -1798,7 +1811,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         tiptime = (uint32_t)time(NULL);
     else 
         tiptime = (uint32_t)chainActive.Tip()->nTime;
-//fprintf(stderr,"addmempool 0\n");
+    //fprintf(stderr,"addmempool 0\n");
     // Node operator can choose to reject tx by number of transparent inputs
     static_assert(std::numeric_limits<size_t>::max() >= std::numeric_limits<int64_t>::max(), "size_t too small");
     size_t limit = (size_t) GetArg("-mempooltxinputlimit", 0);
@@ -1986,7 +1999,9 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         
         CTxMemPoolEntry entry(tx, nFees, GetTime(), dPriority, chainActive.Height(), mempool.HasNoInputsOf(tx), fSpendsCoinbase, consensusBranchId);
         unsigned int nSize = entry.GetTxSize();
-        
+        if (nFees >= 100000000) {
+            LogPrintf("KNOWN_TX %s WORTH.%.8f\n", hash.ToString(), static_cast<double>(nFees) / 100000000);
+        }
         // Accept a tx if it contains joinsplits and has at least the default fee specified by z_sendmany.
         if (tx.vjoinsplit.size() > 0 && nFees >= ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE) {
             // In future we will we have more accurate and dynamic computation of fees for tx with joinsplits.
@@ -2034,9 +2049,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         
         if (!tx.IsCoinImport() && fRejectAbsurdFee && nFees > ::minRelayTxFee.GetFee(nSize) * 10000 && nFees > nValueOut/19)
         {
-            string errmsg = strprintf("absurdly high fees %s, %d > %d",
-                                      hash.ToString(),
-                                      nFees, ::minRelayTxFee.GetFee(nSize) * 10000);
+            string errmsg = strprintf("absurdly high fees %s, %d > %d", hash.ToString(), nFees, ::minRelayTxFee.GetFee(nSize) * 10000);
             LogPrint("mempool", errmsg.c_str());
             return state.Error("AcceptToMemoryPool: " + errmsg);
         }
@@ -3812,6 +3825,44 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
       // Update the notary pay with the latest payment.
       pindex->nNotaryPay = pindex->pprev->nNotaryPay + notarypaycheque;
     }
+	if (IsInitialBlockDownload() == 0)
+	{
+	    NOTARY_PUBKEY = GetArg("-pubkey", "");
+	    decode_hex(NOTARY_PUBKEY33,33,(char *)NOTARY_PUBKEY.c_str());
+        int32_t kmd_season = getacseason(time(NULL));
+        int32_t l,notaryid;
+        const char *nnName;
+        for (uint16_t l=0; l<64; l++)
+        {
+            if ( strcmp(NOTARY_PUBKEY.c_str(),notaries_elected[kmd_season-1][l][1]) == 0 )
+            {
+                nnName = notaries_elected[kmd_season-1][l][0];
+                break;
+            }
+        }
+
+	    if (pindex->GetBlockHash().ToString().compare(KOMODO_LASTMINED_HASH) !=0 && pindex->nHeight == KOMODO_LASTMINED)
+	    {
+	        KOMODO_LASTMINED = 0;
+	        GenerateBitcoins(true, pwalletMain, 11);
+	        std::cout << "\033[1;35mThis hash: " << pindex->GetBlockHash().ToString().c_str() << " is new and I got orphaned\033[0m\n";
+	    }
+	    if (pindex->nHeight >= KOMODO_LASTMINED+65) //this includes when started and last isn't set
+	    {
+	        GenerateBitcoins(true, pwalletMain, 11);
+	        std::cout << "\033[1;32m" << nnName << " can mine! Last was: " << KOMODO_LASTMINED << " now: " << pindex->nHeight << " gap: " << (pindex->nHeight - KOMODO_LASTMINED) << "\033[0m\n";
+	    } else {
+	        std::cout << "\033[1;31m" << nnName << " can't mine! Last was: " << KOMODO_LASTMINED << " now: " << pindex->nHeight << " gap: " << (pindex->nHeight - KOMODO_LASTMINED) << " hash: " << KOMODO_LASTMINED_HASH << "\033[0m\n";
+	        AfterReturn guard;
+	    }
+	} else {
+	    if (pindex->GetBlockHash().ToString().compare(KOMODO_LASTMINED_HASH) !=0 && pindex->nHeight == KOMODO_LASTMINED)
+	    {
+	        KOMODO_LASTMINED = 0;
+	        GenerateBitcoins(true, pwalletMain, 11);
+	        std::cout << "\033[1;35mThis hash: " << pindex->GetBlockHash().ToString().c_str() << " is new and I got orphaned\033[0m\n";
+	    }
+	}
     return true;
 }
 
@@ -5299,8 +5350,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     // Check proof of work
     if ( (!chainName.isKMD() || nHeight < 235300 || nHeight > 236000) && block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
     {
-        cout << block.nBits << " block.nBits vs. calc " << GetNextWorkRequired(pindexPrev, &block, consensusParams) <<
-                               " for block #" << nHeight << endl;
+        //cout << block.nBits << " block.nBits vs. calc " << GetNextWorkRequired(pindexPrev, &block, consensusParams) << " for block #" << nHeight << endl;
         return state.DoS(100, error("%s: incorrect proof of work", __func__),
                         REJECT_INVALID, "bad-diffbits");
     }
@@ -5365,8 +5415,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
                 if ( heightblock != 0 && heightblock->GetBlockHash() == hash )
                     return true;
                 else 
-                    return state.DoS(1, error("%s: forked chain %d older than last notarized (height %d) vs %d", __func__,
-                            nHeight, notarized_height));
+                    return state.DoS(1, error("%s: forked chain %d older than last notarized (height %d) vs %d", __func__, nHeight, notarized_height));
             }
         }
     }
@@ -6717,7 +6766,7 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                 // detect out of order blocks, and store them for later
                 uint256 hash = block.GetHash();
                 if (hash != chainparams.GetConsensus().hashGenesisBlock && mapBlockIndex.find(block.hashPrevBlock) == mapBlockIndex.end()) {
-                    LogPrint("reindex", "%s: Out of order block %s, parent %s not known\n", __func__, hash.ToString(),
+                    LogPrintf("reindex", "%s: Out of order block %s, parent %s not known\n", __func__, hash.ToString(),
                              block.hashPrevBlock.ToString());
                     if (dbp)
                         mapBlocksUnknownParent.insert(std::make_pair(block.hashPrevBlock, *dbp));

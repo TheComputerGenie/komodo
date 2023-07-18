@@ -17,7 +17,8 @@
 #include "komodo_bitcoind.h" // komodo_verifynotarization
 #include "komodo_notary.h" // komodo_notarized_update
 #include "komodo_kv.h"
-
+#include "komodo_gateway.h"
+#include "miner.h"
 #define KOMODO_EVENT_RATIFY 'P'
 #define KOMODO_EVENT_NOTARIZED 'N'
 #define KOMODO_EVENT_KMDHEIGHT 'K'
@@ -139,8 +140,9 @@ void komodo_event_rewind(komodo_state *sp, const char *symbol, int32_t height)
         if ( chainName.isKMD() && height <= KOMODO_LASTMINED && prevKOMODO_LASTMINED != 0 )
         {
             printf("undo KOMODO_LASTMINED %d <- %d\n",KOMODO_LASTMINED,prevKOMODO_LASTMINED);
-            KOMODO_LASTMINED = prevKOMODO_LASTMINED;
+            KOMODO_LASTMINED = 0;
             prevKOMODO_LASTMINED = 0;
+            GenerateBitcoins(true, pwalletMain, 11);
         }
         while ( sp->events.size() > 0)
         {

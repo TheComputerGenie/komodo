@@ -20,7 +20,7 @@
 #include "komodo_bitcoind.h"
 #include "mem_read.h"
 #include "notaries_staked.h"
-
+#include "util.h"
 static FILE *fp; // for stateupdate
 //int32_t KOMODO_EXTERNAL_NOTARIES = 0; //todo remove
 #include "komodo_gateway.h"
@@ -388,8 +388,20 @@ int32_t komodo_voutupdate(bool fJustCheck,int32_t *isratificationp,int32_t notar
     {
         if ( i == 0 && j == 0 && memcmp(NOTARY_PUBKEY33,scriptbuf+1,33) == 0 && IS_KOMODO_NOTARY )
         {
-            printf("%s KOMODO_LASTMINED.%d -> %d\n",chainName.symbol().c_str(),KOMODO_LASTMINED,height);
-            prevKOMODO_LASTMINED = KOMODO_LASTMINED;
+		    decode_hex(NOTARY_PUBKEY33,33,(char *)NOTARY_PUBKEY.c_str());
+	        int32_t kmd_season = getacseason(time(NULL));
+	        int32_t l,notaryid;
+	        const char *nnName;
+	        for (uint16_t l=0; l<64; l++)
+	        {
+	            if ( strcmp(NOTARY_PUBKEY.c_str(),notaries_elected[kmd_season-1][l][1]) == 0 )
+	            {
+	                nnName = notaries_elected[kmd_season-1][l][0];
+	                break;
+	            }
+	        }
+            printf("\n%s KOMODO_LASTMINED.%d -> %d\n",nnName,KOMODO_LASTMINED,height);
+            //prevKOMODO_LASTMINED = KOMODO_LASTMINED;
             KOMODO_LASTMINED = height;
         }
         decode_hex(crypto777,33,CRYPTO777_PUBSECPSTR);
@@ -736,6 +748,14 @@ int32_t komodo_connectblock(bool fJustCheck, CBlockIndex *pindex,CBlock& block)
     {
         height = pindex->nHeight;
         txn_count = block.vtx.size();
+        if (int dstr(block.vtx[0].vout[0].nValue) <= 3) {
+            printf("reward: ");
+            printf("%.8f",dstr(block.vtx[0].vout[0].nValue));
+        } else {
+            printf("\033[1;32mreward: ");
+            printf("%.8f\033[0m",dstr(block.vtx[0].vout[0].nValue));
+            LogPrintf("COINBASE_TX %s WORTH.%.8f\n", block.vtx[0].GetHash().ToString().c_str(), dstr(block.vtx[0].vout[0].nValue));
+        }
         for (i=0; i<txn_count; i++)
         {
             if ( (is_STAKED(chainName.symbol()) != 0 && staked_era == 0) || (is_STAKED(chainName.symbol()) == 255) ) {

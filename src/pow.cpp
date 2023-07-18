@@ -651,20 +651,7 @@ bool CheckProofOfWork(const CBlockHeader &blkHeader, uint8_t *pubkey33, int32_t 
         special2 = komodo_is_special(pubkeys,mids,blocktimes,height,pubkey33,blkHeader.nTime);
         if ( notaryid >= 0 )
         {
-            if ( height > 10000 && height < 80000 && (special != 0 || special2 > 0) )
-                flag = 1;
-            else if ( height >= 80000 && height < 108000 && special2 > 0 )
-                flag = 1;
-            else if ( height >= 108000 && special2 > 0 )
-                flag = (height > 1000000 || (height % KOMODO_ELECTION_GAP) > 64 || (height % KOMODO_ELECTION_GAP) == 0);
-            else if ( height == 790833 )
-                flag = 1;
-            else if ( special2 < 0 )
-            {
-                if ( height > 792000 )
-                    flag = 0;
-                else fprintf(stderr,"ht.%d notaryid.%d special.%d flag.%d special2.%d\n",height,notaryid,special,flag,special2);
-            }
+            bnTarget.SetCompact(KOMODO_MINDIFF_NBITS,&fNegative,&fOverflow);
 
             /* hf22 rule applied to stale blocks */
             if (params.nHF22Height != boost::none) {
