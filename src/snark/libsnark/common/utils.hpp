@@ -15,7 +15,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include <stdint.h>
 namespace libsnark {
 
 typedef std::vector<bool> bit_vector;
