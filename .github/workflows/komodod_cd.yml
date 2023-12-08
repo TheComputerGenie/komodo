@@ -8,8 +8,9 @@ on:
     branches:
     - beta
     - dev
-    - research
     - master
+    - master+
+    - NN_am
 
 jobs:
 
