@@ -29,15 +29,13 @@
 
 using namespace std;
 
-class CRPCConvertParam
-{
-public:
+class CRPCConvertParam {
+  public:
     std::string methodName;            //! method whose params want conversion
     int paramIdx;                      //! 0-based idx of param to convert
 };
 
-static const CRPCConvertParam vRPCConvertParams[] =
-{
+static const CRPCConvertParam vRPCConvertParams[] = {
     { "stop", 0 },
     { "setmocktime", 0 },
     { "getaddednodeinfo", 0 },
@@ -178,12 +176,11 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "migrate_completeimporttransaction", 1},
 };
 
-class CRPCConvertTable
-{
-private:
+class CRPCConvertTable {
+  private:
     std::set<std::pair<std::string, int> > members;
 
-public:
+  public:
     CRPCConvertTable();
 
     bool convert(const std::string& method, int idx) {
@@ -191,8 +188,7 @@ public:
     }
 };
 
-CRPCConvertTable::CRPCConvertTable()
-{
+CRPCConvertTable::CRPCConvertTable() {
     const unsigned int n_elem =
         (sizeof(vRPCConvertParams) / sizeof(vRPCConvertParams[0]));
 
@@ -207,18 +203,16 @@ static CRPCConvertTable rpcCvtTable;
 /** Non-RFC4627 JSON parser, accepts internal values (such as numbers, true, false, null)
  * as well as objects and arrays.
  */
-UniValue ParseNonRFCJSONValue(const std::string& strVal)
-{
+UniValue ParseNonRFCJSONValue(const std::string& strVal) {
     UniValue jVal;
     if (!jVal.read(std::string("[")+strVal+std::string("]")) ||
-        !jVal.isArray() || jVal.size()!=1)
+            !jVal.isArray() || jVal.size()!=1)
         throw runtime_error(string("Error JSON:")+strVal);
     return jVal[0];
 }
 
 /** Convert strings to command-specific RPC representation */
-UniValue RPCConvertValues(const std::string &strMethod, const std::vector<std::string> &strParams)
-{
+UniValue RPCConvertValues(const std::string &strMethod, const std::vector<std::string> &strParams) {
     UniValue params(UniValue::VARR);
 
     for (unsigned int idx = 0; idx < strParams.size(); idx++) {

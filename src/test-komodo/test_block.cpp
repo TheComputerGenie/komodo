@@ -21,8 +21,7 @@ TEST(test_block, header_size_is_expected) {
     EXPECT_EQ(ss.size(), stream_size);
 }
 
-TEST(test_block, TestStopAt)
-{
+TEST(test_block, TestStopAt) {
     TestChain chain;
     auto notary = std::make_shared<TestWallet>(chain.getNotaryKey(), "notary");
     std::shared_ptr<CBlock> lastBlock = chain.generateBlock(notary); // genesis block
@@ -36,8 +35,7 @@ TEST(test_block, TestStopAt)
     KOMODO_STOPAT = 0; // to not stop other tests
 }
 
-TEST(test_block, TestConnectWithoutChecks)
-{
+TEST(test_block, TestConnectWithoutChecks) {
     TestChain chain;
     auto notary = std::make_shared<TestWallet>(chain.getNotaryKey(), "notary");
     auto alice = std::make_shared<TestWallet>("alice");
@@ -70,8 +68,7 @@ TEST(test_block, TestConnectWithoutChecks)
         FAIL() << state.GetRejectReason();
 }
 
-TEST(test_block, TestSpendInSameBlock)
-{
+TEST(test_block, TestSpendInSameBlock) {
     //setConsoleDebugging(true);
     TestChain chain;
     chainName = assetchain("TST"); // use not KMD to ensure komodo_hardfork_active() is true for tx nLockTime to be handled: both tx nLocktime and nBlockTime are set to the MTP
@@ -89,14 +86,14 @@ TEST(test_block, TestSpendInSameBlock)
     // Start to build a block
     int32_t newHeight = chain.GetIndex()->nHeight + 1;
     TransactionInProcess fundAlice = notary->CreateSpendTransaction(alice, 100000, 5000, true);
-    notaryBalance -= 105000; // transfer + fee  
+    notaryBalance -= 105000; // transfer + fee
     // now have Alice move some funds to Bob in the same block
     CCoinControl useThisTransaction;
     COutPoint tx(fundAlice.transaction.GetHash(), 1);
     useThisTransaction.Select(tx);
     TransactionInProcess aliceToBob = alice->CreateSpendTransaction(bob, 50000, 5000, useThisTransaction);
     EXPECT_TRUE( alice->CommitTransaction(aliceToBob.transaction, aliceToBob.reserveKey) );
-    // std::this_thread::sleep_for(std::chrono::seconds(1)); 
+    // std::this_thread::sleep_for(std::chrono::seconds(1));
     // see if everything worked
     lastBlock = chain.generateBlock(miner);
     EXPECT_TRUE( lastBlock != nullptr);
@@ -106,9 +103,8 @@ TEST(test_block, TestSpendInSameBlock)
     EXPECT_EQ( alice->GetBalance() + alice->GetUnconfirmedBalance() + alice->GetImmatureBalance(), CAmount(45000));
 }
 
-// Note: long delays during this test occur in reservekey.GetReservedKey(vchPubKey) call 
-TEST(test_block, TestDoubleSpendInSameBlock)
-{
+// Note: long delays during this test occur in reservekey.GetReservedKey(vchPubKey) call
+TEST(test_block, TestDoubleSpendInSameBlock) {
     TestChain chain;
     auto notary = std::make_shared<TestWallet>(chain.getNotaryKey(), "notary");
     notary->SetBroadcastTransactions(true);
@@ -141,7 +137,7 @@ TEST(test_block, TestDoubleSpendInSameBlock)
         EXPECT_FALSE(alice->CommitTransaction(aliceToCharlie.transaction, aliceToCharlie.reserveKey, state));
         EXPECT_EQ(state.GetRejectReason(), "mempool conflict");
     }
-    /*  
+    /*
     EXPECT_EQ(mempool.size(), 3);
     CValidationState validationState;
     std::shared_ptr<CBlock> block = chain.generateBlock(notary, &validationState);
@@ -152,8 +148,7 @@ TEST(test_block, TestDoubleSpendInSameBlock)
 
 bool CalcPoW(CBlock *pblock);
 
-TEST(test_block, TestProcessBlock)
-{
+TEST(test_block, TestProcessBlock) {
     TestChain chain;
     EXPECT_EQ(chain.GetIndex()->nHeight, 0);
     auto notary = std::make_shared<TestWallet>(chain.getNotaryKey(), "notary");
@@ -204,8 +199,7 @@ TEST(test_block, TestProcessBlock)
     EXPECT_EQ(mempool.size(), 1);
 }
 
-TEST(test_block, TestProcessBadBlock)
-{
+TEST(test_block, TestProcessBadBlock) {
     TestChain chain;
     auto notary = std::make_shared<TestWallet>(chain.getNotaryKey(), "notary");
     auto alice = std::make_shared<TestWallet>("alice");

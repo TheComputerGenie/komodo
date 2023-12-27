@@ -32,13 +32,14 @@ class CScript;
 class CReserveKey;
 class CWallet;
 #endif
-namespace Consensus { struct Params; };
+namespace Consensus {
+struct Params;
+};
 
 /***
  * Holds data about the block under construction
  */
-struct CBlockTemplate
-{
+struct CBlockTemplate {
     CBlock block;
     std::vector<CAmount> vTxFees;
     std::vector<int64_t> vTxSigOps;
@@ -46,7 +47,7 @@ struct CBlockTemplate
 #define KOMODO_MAXGPUCOUNT 65
 
 /*****
- * @breif Generate a new block based on mempool txs, without valid proof-of-work 
+ * @breif Generate a new block based on mempool txs, without valid proof-of-work
  * @param _pk the public key
  * @param _scriptPubKeyIn the script for the public key
  * @param gpucount assists in calculating the block's nTime
@@ -66,11 +67,11 @@ CBlockTemplate* CreateNewBlockWithKey();
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
 /** Run the miner threads */
- #ifdef ENABLE_WALLET
+#ifdef ENABLE_WALLET
 void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads);
- #else
+#else
 void GenerateBitcoins(bool fGenerate, int nThreads);
- #endif
+#endif
 #endif
 
 void UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);

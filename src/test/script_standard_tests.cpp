@@ -15,8 +15,7 @@
 
 BOOST_FIXTURE_TEST_SUITE(script_standard_tests, BasicTestingSetup)
 
-BOOST_AUTO_TEST_CASE(script_standard_Solver_success)
-{
+BOOST_AUTO_TEST_CASE(script_standard_Solver_success) {
     CKey keys[3];
     CPubKey pubkeys[3];
     for (int i = 0; i < 3; i++) {
@@ -56,9 +55,9 @@ BOOST_AUTO_TEST_CASE(script_standard_Solver_success)
     // TX_MULTISIG
     s.clear();
     s << OP_1 <<
-        ToByteVector(pubkeys[0]) <<
-        ToByteVector(pubkeys[1]) <<
-        OP_2 << OP_CHECKMULTISIG;
+      ToByteVector(pubkeys[0]) <<
+      ToByteVector(pubkeys[1]) <<
+      OP_2 << OP_CHECKMULTISIG;
     BOOST_CHECK(Solver(s, whichType, solutions));
     BOOST_CHECK_EQUAL(whichType, TX_MULTISIG);
     BOOST_CHECK_EQUAL(solutions.size(), 4);
@@ -69,10 +68,10 @@ BOOST_AUTO_TEST_CASE(script_standard_Solver_success)
 
     s.clear();
     s << OP_2 <<
-        ToByteVector(pubkeys[0]) <<
-        ToByteVector(pubkeys[1]) <<
-        ToByteVector(pubkeys[2]) <<
-        OP_3 << OP_CHECKMULTISIG;
+      ToByteVector(pubkeys[0]) <<
+      ToByteVector(pubkeys[1]) <<
+      ToByteVector(pubkeys[2]) <<
+      OP_3 << OP_CHECKMULTISIG;
     BOOST_CHECK(Solver(s, whichType, solutions));
     BOOST_CHECK_EQUAL(whichType, TX_MULTISIG);
     BOOST_CHECK_EQUAL(solutions.size(), 5);
@@ -85,9 +84,9 @@ BOOST_AUTO_TEST_CASE(script_standard_Solver_success)
     // TX_NULL_DATA
     s.clear();
     s << OP_RETURN <<
-        std::vector<unsigned char>({0}) <<
-        std::vector<unsigned char>({75}) <<
-        std::vector<unsigned char>({255});
+      std::vector<unsigned char>({0}) <<
+      std::vector<unsigned char>({75}) <<
+      std::vector<unsigned char>({255});
     BOOST_CHECK(Solver(s, whichType, solutions));
     BOOST_CHECK_EQUAL(whichType, TX_NULL_DATA);
     BOOST_CHECK_EQUAL(solutions.size(), 0);
@@ -99,8 +98,7 @@ BOOST_AUTO_TEST_CASE(script_standard_Solver_success)
     BOOST_CHECK_EQUAL(whichType, TX_NONSTANDARD);
 }
 
-BOOST_AUTO_TEST_CASE(script_standard_Solver_failure)
-{
+BOOST_AUTO_TEST_CASE(script_standard_Solver_failure) {
     CKey key;
     CPubKey pubkey;
     key.MakeNewKey(true);
@@ -161,8 +159,7 @@ BOOST_AUTO_TEST_CASE(script_standard_Solver_failure)
     BOOST_CHECK(!Solver(s, whichType, solutions));
 }
 
-BOOST_AUTO_TEST_CASE(script_standard_ExtractDestination)
-{
+BOOST_AUTO_TEST_CASE(script_standard_ExtractDestination) {
     CKey key;
     CPubKey pubkey;
     key.MakeNewKey(true);
@@ -214,8 +211,7 @@ BOOST_AUTO_TEST_CASE(script_standard_ExtractDestination)
     BOOST_CHECK(!ExtractDestination(s, address));
 }
 
-BOOST_AUTO_TEST_CASE(script_standard_ExtractDestinations)
-{
+BOOST_AUTO_TEST_CASE(script_standard_ExtractDestinations) {
     CKey keys[3];
     CPubKey pubkeys[3];
     for (int i = 0; i < 3; i++) {
@@ -262,9 +258,9 @@ BOOST_AUTO_TEST_CASE(script_standard_ExtractDestinations)
     // TX_MULTISIG
     s.clear();
     s << OP_2 <<
-        ToByteVector(pubkeys[0]) <<
-        ToByteVector(pubkeys[1]) <<
-        OP_2 << OP_CHECKMULTISIG;
+      ToByteVector(pubkeys[0]) <<
+      ToByteVector(pubkeys[1]) <<
+      OP_2 << OP_CHECKMULTISIG;
     BOOST_CHECK(ExtractDestinations(s, whichType, addresses, nRequired));
     BOOST_CHECK_EQUAL(whichType, TX_MULTISIG);
     BOOST_CHECK_EQUAL(addresses.size(), 2);
@@ -290,8 +286,7 @@ BOOST_AUTO_TEST_CASE(script_standard_ExtractDestinations)
     BOOST_CHECK(!ExtractDestinations(s, whichType, addresses, nRequired));
 }
 
-BOOST_AUTO_TEST_CASE(script_standard_GetScriptFor_)
-{
+BOOST_AUTO_TEST_CASE(script_standard_GetScriptFor_) {
     CKey keys[3];
     CPubKey pubkeys[3];
     for (int i = 0; i < 3; i++) {
@@ -328,16 +323,15 @@ BOOST_AUTO_TEST_CASE(script_standard_GetScriptFor_)
     // GetScriptForMultisig
     expected.clear();
     expected << OP_2 <<
-        ToByteVector(pubkeys[0]) <<
-        ToByteVector(pubkeys[1]) <<
-        ToByteVector(pubkeys[2]) <<
-        OP_3 << OP_CHECKMULTISIG;
+             ToByteVector(pubkeys[0]) <<
+             ToByteVector(pubkeys[1]) <<
+             ToByteVector(pubkeys[2]) <<
+             OP_3 << OP_CHECKMULTISIG;
     result = GetScriptForMultisig(2, std::vector<CPubKey>(pubkeys, pubkeys + 3));
     BOOST_CHECK(result == expected);
 }
 
-BOOST_AUTO_TEST_CASE(script_standard_IsMine)
-{
+BOOST_AUTO_TEST_CASE(script_standard_IsMine) {
     CKey keys[2];
     CPubKey pubkeys[2];
     for (int i = 0; i < 2; i++) {
@@ -447,9 +441,9 @@ BOOST_AUTO_TEST_CASE(script_standard_IsMine)
 
         scriptPubKey.clear();
         scriptPubKey << OP_2 <<
-            ToByteVector(uncompressedPubkey) <<
-            ToByteVector(pubkeys[1]) <<
-            OP_2 << OP_CHECKMULTISIG;
+                     ToByteVector(uncompressedPubkey) <<
+                     ToByteVector(pubkeys[1]) <<
+                     OP_2 << OP_CHECKMULTISIG;
 
         // Keystore does not have any keys
         result = IsMine(keystore, scriptPubKey);
@@ -482,9 +476,9 @@ BOOST_AUTO_TEST_CASE(script_standard_IsMine)
 
         CScript redeemScript;
         redeemScript << OP_2 <<
-            ToByteVector(uncompressedPubkey) <<
-            ToByteVector(pubkeys[1]) <<
-            OP_2 << OP_CHECKMULTISIG;
+                     ToByteVector(uncompressedPubkey) <<
+                     ToByteVector(pubkeys[1]) <<
+                     OP_2 << OP_CHECKMULTISIG;
 
         scriptPubKey.clear();
         scriptPubKey << OP_HASH160 << ToByteVector(CScriptID(redeemScript)) << OP_EQUAL;

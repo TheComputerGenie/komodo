@@ -30,9 +30,9 @@ void CreateJoinSplitSignature(CMutableTransaction& mtx, uint32_t consensusBranch
 
     // Add the signature
     assert(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
-                         dataToBeSigned.begin(), 32,
-                         joinSplitPrivKey
-                        ) == 0);
+                                dataToBeSigned.begin(), 32,
+                                joinSplitPrivKey
+                               ) == 0);
 }
 
 CMutableTransaction GetValidTransaction() {
@@ -45,7 +45,7 @@ CMutableTransaction GetValidTransaction() {
     mtx.vin[1].prevout.hash = uint256S("0000000000000000000000000000000000000000000000000000000000000002");
     mtx.vin[1].prevout.n = 0;
     mtx.vout.resize(2);
-    // mtx.vout[0].scriptPubKey = 
+    // mtx.vout[0].scriptPubKey =
     mtx.vout[0].nValue = 0;
     mtx.vout[1].nValue = 0;
     mtx.vjoinsplit.resize(2);
@@ -61,7 +61,7 @@ CMutableTransaction GetValidTransaction() {
 // Fake the input of transaction 5295156213414ed77f6e538e7e8ebe14492156906b9fe995b242477818789364
 // - 532639cc6bebed47c1c69ae36dd498c68a012e74ad12729adbd3dbb56f8f3f4a, 0
 class FakeCoinsViewDB : public CCoinsView {
-public:
+  public:
     FakeCoinsViewDB() {}
 
     bool GetSproutAnchorAt(const uint256 &rt, SproutMerkleTree &tree) const {

@@ -62,14 +62,13 @@
 
 static bool fDaemon;
 
-void WaitForShutdown(boost::thread_group* threadGroup)
-{
-    int32_t i,height; CBlockIndex *pindex;
+void WaitForShutdown(boost::thread_group* threadGroup) {
+    int32_t i,height;
+    CBlockIndex *pindex;
     static const uint256 zeroid; //!< null uint256 constant
     bool fShutdown = ShutdownRequested();
     // Tell the main threads to shutdown.
-    if (komodo_currentheight()>KOMODO_EARLYTXID_HEIGHT && KOMODO_EARLYTXID!=zeroid && ((height=tx_height(KOMODO_EARLYTXID))==0 || height>KOMODO_EARLYTXID_HEIGHT))
-    {
+    if (komodo_currentheight()>KOMODO_EARLYTXID_HEIGHT && KOMODO_EARLYTXID!=zeroid && ((height=tx_height(KOMODO_EARLYTXID))==0 || height>KOMODO_EARLYTXID_HEIGHT)) {
         fprintf(stderr,"error: earlytx must be before block height %d or tx does not exist\n",KOMODO_EARLYTXID_HEIGHT);
         StartShutdown();
     }
@@ -77,13 +76,11 @@ void WaitForShutdown(boost::thread_group* threadGroup)
         ThreadUpdateKomodoInternals fired every second (see init.cpp), original wait
         for shutdown loop restored.
     */
-    while (!fShutdown)
-    {
+    while (!fShutdown) {
         MilliSleep(200);
         fShutdown = ShutdownRequested();
     }
-    if (threadGroup)
-    {
+    if (threadGroup) {
         Interrupt(*threadGroup);
         threadGroup->join_all();
     }
@@ -93,8 +90,7 @@ void WaitForShutdown(boost::thread_group* threadGroup)
 //
 // Start
 //
-bool AppInit(int argc, char* argv[])
-{
+bool AppInit(int argc, char* argv[]) {
     boost::thread_group threadGroup;
     CScheduler scheduler;
 
@@ -107,18 +103,14 @@ bool AppInit(int argc, char* argv[])
     ParseParameters(argc, argv);
 
     // Process help and version before taking care about datadir
-    if (mapArgs.count("-?") || mapArgs.count("-h") ||  mapArgs.count("-help") || mapArgs.count("-version"))
-    {
+    if (mapArgs.count("-?") || mapArgs.count("-h") ||  mapArgs.count("-help") || mapArgs.count("-version")) {
         std::string strUsage = _("Komodo Daemon") + " " + _("version") + " " + FormatFullVersion() + "\n" + PrivacyInfo();
 
-        if (mapArgs.count("-version"))
-        {
+        if (mapArgs.count("-version")) {
             strUsage += LicenseInfo();
-        }
-        else
-        {
+        } else {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  komodod [options]                     " + _("Start Komodo Daemon") + "\n";
+                        "  komodod [options]                     " + _("Start Komodo Daemon") + "\n";
 
             strUsage += "\n" + HelpMessage(HMM_BITCOIND);
         }
@@ -127,8 +119,7 @@ bool AppInit(int argc, char* argv[])
         return true;
     }
 
-    try
-    {
+    try {
         // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
         if (!SelectParamsFromCommandLine()) {
             fprintf(stderr, "Error: Invalid combination of -regtest and -testnet.\n");
@@ -141,31 +132,29 @@ bool AppInit(int argc, char* argv[])
 
         fprintf(stderr,"call komodo_args.(%s) NOTARY_PUBKEY.(%s)\n",argv[0],NOTARY_PUBKEY.c_str());
         printf("initialized %s at %u\n",chainName.symbol().c_str(),(uint32_t)time(NULL));
-        if (!boost::filesystem::is_directory(GetDataDir(false)))
-        {
+        if (!boost::filesystem::is_directory(GetDataDir(false))) {
             fprintf(stderr, "Error: Specified data directory \"%s\" does not exist.\n", mapArgs["-datadir"].c_str());
             return false;
         }
-        try
-        {
+        try {
             ReadConfigFile(mapArgs, mapMultiArgs);
         } catch (const missing_zcash_conf& e) {
             fprintf(stderr,
-                (_("Before starting komodod, you need to create a configuration file:\n"
-                   "%s\n"
-                   "It can be completely empty! That indicates you are happy with the default\n"
-                   "configuration of komodod. But requiring a configuration file to start ensures\n"
-                   "that komodod won't accidentally compromise your privacy if there was a default\n"
-                   "option you needed to change.\n"
-                   "\n"
-                   "You can look at the example configuration file for suggestions of default\n"
-                   "options that you may want to change. It should be in one of these locations,\n"
-                   "depending on how you installed Komodo:\n") +
-                 _("- Source code:  %s\n"
-                   "- .deb package: %s\n")).c_str(),
-                GetConfigFile().string().c_str(),
-                "contrib/debian/examples/komodo.conf",
-                "/usr/share/doc/komodo/examples/komodo.conf");
+                    (_("Before starting komodod, you need to create a configuration file:\n"
+                       "%s\n"
+                       "It can be completely empty! That indicates you are happy with the default\n"
+                       "configuration of komodod. But requiring a configuration file to start ensures\n"
+                       "that komodod won't accidentally compromise your privacy if there was a default\n"
+                       "option you needed to change.\n"
+                       "\n"
+                       "You can look at the example configuration file for suggestions of default\n"
+                       "options that you may want to change. It should be in one of these locations,\n"
+                       "depending on how you installed Komodo:\n") +
+                     _("- Source code:  %s\n"
+                       "- .deb package: %s\n")).c_str(),
+                    GetConfigFile().string().c_str(),
+                    "contrib/debian/examples/komodo.conf",
+                    "/usr/share/doc/komodo/examples/komodo.conf");
             return false;
         } catch (const std::exception& e) {
             fprintf(stderr,"Error reading configuration file: %s\n", e.what());
@@ -178,27 +167,23 @@ bool AppInit(int argc, char* argv[])
             if (!IsSwitchChar(argv[i][0]) && !boost::algorithm::istarts_with(argv[i], "komodo:"))
                 fCommandLine = true;
 
-        if (fCommandLine)
-        {
+        if (fCommandLine) {
             fprintf(stderr, "Error: There is no RPC client functionality in komodod. Use the komodo-cli utility instead.\n");
             exit(EXIT_FAILURE);
         }
 
 #ifndef _WIN32
         fDaemon = GetBoolArg("-daemon", false);
-        if (fDaemon)
-        {
+        if (fDaemon) {
             fprintf(stdout, "Komodo %s server starting\n",chainName.symbol().c_str());
 
             // Daemonize
             pid_t pid = fork();
-            if (pid < 0)
-            {
+            if (pid < 0) {
                 fprintf(stderr, "Error: fork() returned %d errno %d\n", pid, errno);
                 return false;
             }
-            if (pid > 0) // Parent process, pid is child process id
-            {
+            if (pid > 0) { // Parent process, pid is child process id
                 return true;
             }
             // Child process falls through to rest of initialization
@@ -211,14 +196,12 @@ bool AppInit(int argc, char* argv[])
         SoftSetBoolArg("-server", true);
 
         fRet = AppInit2(threadGroup, scheduler);
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "AppInit()");
     } catch (...) {
         PrintExceptionContinue(NULL, "AppInit()");
     }
-    if (!fRet)
-    {
+    if (!fRet) {
         Interrupt(threadGroup);
         // threadGroup.join_all(); was left out intentionally here, because we didn't re-test all of
         // the startup-failure cases to make sure they don't result in a hang due to some
@@ -231,8 +214,7 @@ bool AppInit(int argc, char* argv[])
     return fRet;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     SetupEnvironment();
 
     // Connect bitcoind signal handlers

@@ -6,17 +6,14 @@
 #include <unistd.h> // sleep
 #endif
 
-int32_t safecopy(char *dest,const char *src,long len)
-{
+int32_t safecopy(char *dest,const char *src,long len) {
     int32_t i = -1;
-    if ( src != 0 && dest != 0 && src != dest )
-    {
+    if ( src != 0 && dest != 0 && src != dest ) {
         if ( dest != 0 )
             memset(dest,0,len);
         for (i=0; i<len&&src[i]!=0; i++)
             dest[i] = src[i];
-        if ( i == len )
-        {
+        if ( i == len ) {
             printf("safecopy: %s too long %ld\n",src,len);
 #ifdef __APPLE__
             //getchar();
@@ -28,13 +25,11 @@ int32_t safecopy(char *dest,const char *src,long len)
     return(i);
 }
 
-long _stripwhite(char *buf,int accept)
-{
+long _stripwhite(char *buf,int accept) {
     int32_t i,j,c;
     if ( buf == 0 || buf[0] == 0 )
         return(0);
-    for (i=j=0; buf[i]!=0; i++)
-    {
+    for (i=j=0; buf[i]!=0; i++) {
         buf[j] = c = buf[i];
         if ( c == accept || (c != ' ' && c != '\n' && c != '\r' && c != '\t' && c != '\b') )
             j++;
@@ -43,11 +38,9 @@ long _stripwhite(char *buf,int accept)
     return(j);
 }
 
-char *clonestr(char *str)
-{
+char *clonestr(char *str) {
     char *clone;
-    if ( str == 0 || str[0] == 0 )
-    {
+    if ( str == 0 || str[0] == 0 ) {
         printf("warning cloning nullstr.%p\n",str);
         str = (char *)"<nullstr>";
     }

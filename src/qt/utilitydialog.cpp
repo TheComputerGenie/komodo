@@ -26,8 +26,7 @@
 /** "Help message" or "About" dialog box */
 HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
     QDialog(parent),
-    ui(new Ui::HelpMessageDialog)
-{
+    ui(new Ui::HelpMessageDialog) {
     ui->setupUi(this);
 
     QString version = tr("Bitcoin Core") + " " + tr("version") + " " + QString::fromStdString(FormatFullVersion());
@@ -40,8 +39,7 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
     version += " " + tr("(%1-bit)").arg(32);
 #endif
 
-    if (about)
-    {
+    if (about) {
         setWindowTitle(tr("About Bitcoin Core"));
 
         /// HTML-format the license message from the core
@@ -63,7 +61,7 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
     } else {
         setWindowTitle(tr("Command-line options"));
         QString header = tr("Usage:") + "\n" +
-            "  komodo-qt [" + tr("command-line options") + "]                     " + "\n";
+                         "  komodo-qt [" + tr("command-line options") + "]                     " + "\n";
         QTextCursor cursor(ui->helpMessage->document());
         cursor.insertText(version);
         cursor.insertBlock();
@@ -85,8 +83,7 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
         bold.setFontWeight(QFont::Bold);
 
         Q_FOREACH (const QString &line, coreOptions.split("\n")) {
-            if (line.startsWith("  -"))
-            {
+            if (line.startsWith("  -")) {
                 cursor.currentTable()->appendRows(1);
                 cursor.movePosition(QTextCursor::PreviousCell);
                 cursor.movePosition(QTextCursor::NextRow);
@@ -110,19 +107,16 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
     }
 }
 
-HelpMessageDialog::~HelpMessageDialog()
-{
+HelpMessageDialog::~HelpMessageDialog() {
     delete ui;
 }
 
-void HelpMessageDialog::printToConsole()
-{
+void HelpMessageDialog::printToConsole() {
     // On other operating systems, the expected action is to print the message to the console.
     fprintf(stdout, "%s\n", qPrintable(text));
 }
 
-void HelpMessageDialog::showOrPrint()
-{
+void HelpMessageDialog::showOrPrint() {
 #if defined(WIN32)
     // On Windows, show a message box, as there is no stderr/stdout in windowed applications
     exec();
@@ -132,25 +126,22 @@ void HelpMessageDialog::showOrPrint()
 #endif
 }
 
-void HelpMessageDialog::on_okButton_accepted()
-{
+void HelpMessageDialog::on_okButton_accepted() {
     close();
 }
 
 
 /** "Shutdown" window */
 ShutdownWindow::ShutdownWindow(QWidget *parent, Qt::WindowFlags f):
-    QWidget(parent, f)
-{
+    QWidget(parent, f) {
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(new QLabel(
-        tr("Bitcoin Core is shutting down...") + "<br /><br />" +
-        tr("Do not shut down the computer until this window disappears.")));
+                          tr("Bitcoin Core is shutting down...") + "<br /><br />" +
+                          tr("Do not shut down the computer until this window disappears.")));
     setLayout(layout);
 }
 
-void ShutdownWindow::showShutdownWindow(BitcoinGUI *window)
-{
+void ShutdownWindow::showShutdownWindow(BitcoinGUI *window) {
     if (!window)
         return;
 
@@ -167,7 +158,6 @@ void ShutdownWindow::showShutdownWindow(BitcoinGUI *window)
     shutdownWindow->show();
 }
 
-void ShutdownWindow::closeEvent(QCloseEvent *event)
-{
+void ShutdownWindow::closeEvent(QCloseEvent *event) {
     event->ignore();
 }

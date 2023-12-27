@@ -2,7 +2,6 @@
 
 bool test_tromp_equihash();
 
-TEST(test_miner, check)
-{
+TEST(test_miner, check) {
     EXPECT_FALSE(test_tromp_equihash());
 }

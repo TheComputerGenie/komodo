@@ -8,45 +8,38 @@
 void komodo_notaries_uninit();
 
 
-namespace TestNotary
-{
+namespace TestNotary {
 
 /***
  * A little class to help with the different formats keys come in
  */
-class my_key
-{
-public:
-    my_key(uint8_t in[33])
-    {
+class my_key {
+  public:
+    my_key(uint8_t in[33]) {
         for(int i = 0; i < 33; ++i)
             key.push_back(in[i]);
     }
-    my_key(const std::string& in)
-    {
+    my_key(const std::string& in) {
         for(int i = 0; i < 33; ++i)
-            key.push_back( 
-                    (unsigned int)strtol(in.substr(i*2, 2).c_str(), nullptr, 16) );
+            key.push_back(
+                (unsigned int)strtol(in.substr(i*2, 2).c_str(), nullptr, 16) );
     }
-    bool fill(uint8_t in[33])
-    {
+    bool fill(uint8_t in[33]) {
         memcpy(in, key.data(), 33);
         return true;
     }
-private:
+  private:
     std::vector<uint8_t> key;
     friend bool operator==(const my_key& lhs, const my_key& rhs);
 };
 
-bool operator==(const my_key& lhs, const my_key& rhs)
-{
+bool operator==(const my_key& lhs, const my_key& rhs) {
     if (lhs.key == rhs.key)
         return true;
     return false;
 }
 
-TEST(TestNotary, KomodoNotaries)
-{
+TEST(TestNotary, KomodoNotaries) {
     // Test komodo_notaries(), getkmdseason()
     chainName = assetchain(""); // set as KMD
     SelectParams(CBaseChainParams::MAIN);
@@ -61,8 +54,7 @@ TEST(TestNotary, KomodoNotaries)
     // the first notary didn't change between era 1 and 2, so look at the 2nd notary
     EXPECT_EQ( my_key(pubkeys[1]), my_key("02ebfc784a4ba768aad88d44d1045d240d47b26e248cafaf1c5169a42d7a61d344"));
     // make sure the era hasn't changed before it is supposed to
-    for(;height <= 179999; ++height)
-    {
+    for(; height <= 179999; ++height) {
         result = komodo_notaries(pubkeys, height, timestamp);
         EXPECT_EQ(result, 35);
         EXPECT_EQ( getkmdseason(height), 1);
@@ -71,8 +63,7 @@ TEST(TestNotary, KomodoNotaries)
     }
     EXPECT_EQ(height, 180000);
     // at 180000 we start using notaries_elected(komodo_defs.h) instead of Notaries_genesis(komodo_notary.cpp)
-    for(;height <= 814000; ++height)
-    {
+    for(; height <= 814000; ++height) {
         result = komodo_notaries(pubkeys, height, timestamp);
         EXPECT_EQ(result, 64);
         EXPECT_EQ( getkmdseason(height), 1);
@@ -126,8 +117,7 @@ TEST(TestNotary, KomodoNotaries)
     EXPECT_EQ( getacseason(1525132801), 2);
 }
 
-TEST(TestNotary, ElectedNotary)
-{
+TEST(TestNotary, ElectedNotary) {
     // exercise the routine that checks to see if a particular public key is a notary at the current height
 
     SelectParams(CBaseChainParams::MAIN);
@@ -167,8 +157,7 @@ TEST(TestNotary, ElectedNotary)
 }
 
 // season 7 tests for KMD:
-TEST(TestNotary, KomodoNotaries_S7_KMD)
-{
+TEST(TestNotary, KomodoNotaries_S7_KMD) {
     uint8_t pubkeys[64][33];
 
     SelectParams(CBaseChainParams::MAIN);
@@ -197,8 +186,7 @@ TEST(TestNotary, KomodoNotaries_S7_KMD)
 }
 
 // season 7 tests for asset chain:
-TEST(TestNotary, KomodoNotaries_S7_AS)
-{
+TEST(TestNotary, KomodoNotaries_S7_AS) {
     uint8_t pubkeys[64][33];
 
     SelectParams(CBaseChainParams::MAIN);

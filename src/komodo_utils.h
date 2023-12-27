@@ -41,7 +41,11 @@
 
 #define KOMODO_PUBTYPE 60
 
-struct rmd160_vstate { uint64_t length; uint8_t buf[64]; uint32_t curlen, state[5]; };
+struct rmd160_vstate {
+    uint64_t length;
+    uint8_t buf[64];
+    uint32_t curlen, state[5];
+};
 
 void vcalc_sha256(char deprecated[(256 >> 3) * 2 + 1],uint8_t hash[256 >> 3],uint8_t *src,int32_t len);
 
@@ -117,7 +121,7 @@ komodo_state *komodo_stateptr(char *symbol,char *dest);
 void komodo_prefetch(FILE *fp);
 
 // check if block timestamp is more than S5 activation time
-// this function is to activate the ExtractDestination fix 
+// this function is to activate the ExtractDestination fix
 bool komodo_is_vSolutionsFixActive();
 
 void set_kmd_user_password_port(const std::string& ltc_config_filename);

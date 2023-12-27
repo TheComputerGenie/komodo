@@ -11,9 +11,8 @@
 
 using ::testing::StrictMock;
 
-class MockCTimeWarning : public CTimeWarning
-{
-public:
+class MockCTimeWarning : public CTimeWarning {
+  public:
     MOCK_METHOD2(Warn, void(size_t, size_t));
 };
 
@@ -26,8 +25,7 @@ CNetAddr GetUniqueAddr() {
     return ip;
 }
 
-TEST(TimeWarning, Assertions)
-{
+TEST(TimeWarning, Assertions) {
     StrictMock<MockCTimeWarning> tw;
     EXPECT_DEATH(tw.AddTimeData(GetUniqueAddr(), 0, INT64_MIN), "");
     EXPECT_DEATH(tw.AddTimeData(GetUniqueAddr(), 0, -1), "");
@@ -35,8 +33,7 @@ TEST(TimeWarning, Assertions)
     EXPECT_DEATH(tw.AddTimeData(GetUniqueAddr(), 0, INT64_MAX), "");
 }
 
-TEST(TimeWarning, NoWarning)
-{
+TEST(TimeWarning, NoWarning) {
     StrictMock<MockCTimeWarning> tw;
     int64_t now = GetTime();
 
@@ -56,8 +53,7 @@ TEST(TimeWarning, NoWarning)
     }
 }
 
-TEST(TimeWarning, PeersAhead)
-{
+TEST(TimeWarning, PeersAhead) {
     StrictMock<MockCTimeWarning> tw;
     int64_t now = GetTime();
 
@@ -69,8 +65,7 @@ TEST(TimeWarning, PeersAhead)
     tw.AddTimeData(GetUniqueAddr(), now + CTimeWarning::TIMEDATA_IGNORE_THRESHOLD - 1, now);
 }
 
-TEST(TimeWarning, PeersBehind)
-{
+TEST(TimeWarning, PeersBehind) {
     StrictMock<MockCTimeWarning> tw;
     int64_t now = GetTime();
 
@@ -82,8 +77,7 @@ TEST(TimeWarning, PeersBehind)
     tw.AddTimeData(GetUniqueAddr(), now - CTimeWarning::TIMEDATA_IGNORE_THRESHOLD + 1, now);
 }
 
-TEST(TimeWarning, PeersMixed)
-{
+TEST(TimeWarning, PeersMixed) {
     StrictMock<MockCTimeWarning> tw;
     int64_t now = GetTime();
 

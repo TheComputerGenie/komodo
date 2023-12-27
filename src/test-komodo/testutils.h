@@ -47,9 +47,8 @@ CTransaction getInputTx(CScript scriptPubKey);
 CMutableTransaction spendTx(const CTransaction &txIn, int nOut=0);
 std::vector<uint8_t> getSig(const CMutableTransaction mtx, CScript inputPubKey, int nIn=0);
 
-class TransactionInProcess
-{
-public:
+class TransactionInProcess {
+  public:
     TransactionInProcess(CWallet* wallet) : reserveKey(wallet) {}
     CWalletTx transaction;
     CReserveKey reserveKey;
@@ -57,9 +56,8 @@ public:
 
 class TestWallet;
 
-class TestChain
-{
-public:
+class TestChain {
+  public:
     /***
      * ctor to create a chain
      */
@@ -83,8 +81,8 @@ public:
      * Generate a block
      * @returns the block generated
      */
-    std::shared_ptr<CBlock> generateBlock(std::shared_ptr<CWallet> wallet, 
-            CValidationState* validationState = nullptr);
+    std::shared_ptr<CBlock> generateBlock(std::shared_ptr<CWallet> wallet,
+                                          CValidationState* validationState = nullptr);
     /****
      * @brief set the chain time to something reasonable
      * @note must be called after generateBlock if you
@@ -111,10 +109,10 @@ public:
      * @returns true on success
      */
     bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
-            bool fJustCheck = false,bool fCheckPOW = false);
-    
+                      bool fJustCheck = false,bool fCheckPOW = false);
+
     boost::filesystem::path GetDataDir();
-private:
+  private:
     boost::filesystem::path dataDir;
     std::string previousNetwork;
     void CleanGlobals();
@@ -123,9 +121,8 @@ private:
 /***
  * An easy-to-use wallet for testing Komodo
  */
-class TestWallet : public CWallet
-{
-public:
+class TestWallet : public CWallet {
+  public:
     TestWallet(const std::string& name);
     TestWallet(const CKey& in, const std::string& name);
     ~TestWallet();
@@ -169,7 +166,7 @@ public:
      * @param txToSpend the specific transaction to spend (ok if not transmitted yet)
      * @returns the transaction
     */
-    TransactionInProcess CreateSpendTransaction(std::shared_ptr<TestWallet> to, 
+    TransactionInProcess CreateSpendTransaction(std::shared_ptr<TestWallet> to,
             CAmount amount, CAmount fee, CCoinControl& coinControl);
     /****
      * @brief create a transaction spending a vout that is not yet in the wallet
@@ -180,8 +177,8 @@ public:
      * @param outputControl the tx to spend
      * @returns true on success
      */
-    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, 
-            CReserveKey& reservekey, std::string& strFailReason, CCoinControl* coinControl);
+    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew,
+                           CReserveKey& reservekey, std::string& strFailReason, CCoinControl* coinControl);
     using CWallet::CommitTransaction;
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, CValidationState& state);
     /***
@@ -191,6 +188,6 @@ public:
      * @returns the results
      */
     CTransaction Transfer(std::shared_ptr<TestWallet> to, CAmount amount, CAmount fee = 0);
-private:
+  private:
     CKey key;
 };

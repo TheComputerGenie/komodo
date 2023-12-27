@@ -20,11 +20,9 @@
 #include <gtest/gtest.h>
 #include "zcash/IncrementalMerkleTree.hpp"
 
-namespace TestCoins
-{
+namespace TestCoins {
 
-class CCoinsViewTest : public CCoinsView
-{
+class CCoinsViewTest : public CCoinsView {
     uint256 hashBestBlock_;
     uint256 hashBestSproutAnchor_;
     uint256 hashBestSaplingAnchor_;
@@ -34,7 +32,7 @@ class CCoinsViewTest : public CCoinsView
     std::map<uint256, bool> mapSproutNullifiers_;
     std::map<uint256, bool> mapSaplingNullifiers_;
 
-public:
+  public:
     CCoinsViewTest() {
         hashBestSproutAnchor_ = SproutMerkleTree::empty_root();
         hashBestSaplingAnchor_ = SaplingMerkleTree::empty_root();
@@ -72,18 +70,17 @@ public:
         }
     }
 
-    bool GetNullifier(const uint256 &nf, ShieldedType type) const
-    {
+    bool GetNullifier(const uint256 &nf, ShieldedType type) const {
         const std::map<uint256, bool>* mapToUse;
         switch (type) {
-            case SPROUT:
-                mapToUse = &mapSproutNullifiers_;
-                break;
-            case SAPLING:
-                mapToUse = &mapSaplingNullifiers_;
-                break;
-            default:
-                throw std::runtime_error("Unknown shielded type");
+        case SPROUT:
+            mapToUse = &mapSproutNullifiers_;
+            break;
+        case SAPLING:
+            mapToUse = &mapSaplingNullifiers_;
+            break;
+        default:
+            throw std::runtime_error("Unknown shielded type");
         }
         std::map<uint256, bool>::const_iterator it = mapToUse->find(nf);
         if (it == mapToUse->end()) {
@@ -97,19 +94,18 @@ public:
 
     uint256 GetBestAnchor(ShieldedType type) const {
         switch (type) {
-            case SPROUT:
-                return hashBestSproutAnchor_;
-                break;
-            case SAPLING:
-                return hashBestSaplingAnchor_;
-                break;
-            default:
-                throw std::runtime_error("Unknown shielded type");
+        case SPROUT:
+            return hashBestSproutAnchor_;
+            break;
+        case SAPLING:
+            return hashBestSaplingAnchor_;
+            break;
+        default:
+            throw std::runtime_error("Unknown shielded type");
         }
     }
 
-    bool GetCoins(const uint256& txid, CCoins& coins) const
-    {
+    bool GetCoins(const uint256& txid, CCoins& coins) const {
         std::map<uint256, CCoins>::const_iterator it = map_.find(txid);
         if (it == map_.end()) {
             return false;
@@ -122,16 +118,16 @@ public:
         return true;
     }
 
-    bool HaveCoins(const uint256& txid) const
-    {
+    bool HaveCoins(const uint256& txid) const {
         CCoins coins;
         return GetCoins(txid, coins);
     }
 
-    uint256 GetBestBlock() const { return hashBestBlock_; }
+    uint256 GetBestBlock() const {
+        return hashBestBlock_;
+    }
 
-    void BatchWriteNullifiers(CNullifiersMap& mapNullifiers, std::map<uint256, bool>& cacheNullifiers)
-    {
+    void BatchWriteNullifiers(CNullifiersMap& mapNullifiers, std::map<uint256, bool>& cacheNullifiers) {
         for (CNullifiersMap::iterator it = mapNullifiers.begin(); it != mapNullifiers.end(); ) {
             if (it->second.entered) {
                 cacheNullifiers[it->first] = true;
@@ -144,8 +140,7 @@ public:
     }
 
     template<typename Tree, typename Map>
-    void BatchWriteAnchors(Map& mapAnchors, std::map<uint256, Tree>& cacheAnchors)
-    {
+    void BatchWriteAnchors(Map& mapAnchors, std::map<uint256, Tree>& cacheAnchors) {
         for (auto it = mapAnchors.begin(); it != mapAnchors.end(); ) {
             if (it->second.entered) {
                 auto ret = cacheAnchors.insert(std::make_pair(it->first, Tree())).first;
@@ -164,8 +159,7 @@ public:
                     CAnchorsSproutMap& mapSproutAnchors,
                     CAnchorsSaplingMap& mapSaplingAnchors,
                     CNullifiersMap& mapSproutNullifiers,
-                    CNullifiersMap& mapSaplingNullifiers)
-    {
+                    CNullifiersMap& mapSaplingNullifiers) {
         for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end(); ) {
             map_[it->first] = it->second.coins;
             if (it->second.coins.IsPruned() && insecure_rand() % 3 == 0) {
@@ -190,16 +184,16 @@ public:
         return true;
     }
 
-    bool GetStats(CCoinsStats& stats) const { return false; }
+    bool GetStats(CCoinsStats& stats) const {
+        return false;
+    }
 };
 
-class CCoinsViewCacheTest : public CCoinsViewCache
-{
-public:
+class CCoinsViewCacheTest : public CCoinsViewCache {
+  public:
     CCoinsViewCacheTest(CCoinsView* base) : CCoinsViewCache(base) {}
 
-    void SelfTest() const
-    {
+    void SelfTest() const {
         // Manually recompute the dynamic usage of the whole data, and compare it.
         size_t ret = memusage::DynamicUsage(cacheCoins) +
                      memusage::DynamicUsage(cacheSproutAnchors) +
@@ -214,22 +208,20 @@ public:
 
 };
 
-class TxWithNullifiers
-{
-public:
+class TxWithNullifiers {
+  public:
     CTransaction tx;
     uint256 sproutNullifier;
     uint256 saplingNullifier;
 
-    TxWithNullifiers()
-    {
+    TxWithNullifiers() {
         CMutableTransaction mutableTx;
 
         sproutNullifier = GetRandHash();
         JSDescription jsd;
         jsd.nullifiers[0] = sproutNullifier;
         mutableTx.vjoinsplit.emplace_back(jsd);
-        
+
         saplingNullifier = GetRandHash();
         SpendDescription sd;
         sd.nullifier = saplingNullifier;
@@ -240,8 +232,7 @@ public:
 };
 
 
-uint256 appendRandomSproutCommitment(SproutMerkleTree &tree)
-{
+uint256 appendRandomSproutCommitment(SproutMerkleTree &tree) {
     libzcash::SproutSpendingKey k = libzcash::SproutSpendingKey::random();
     libzcash::SproutPaymentAddress addr = k.address();
 
@@ -253,12 +244,15 @@ uint256 appendRandomSproutCommitment(SproutMerkleTree &tree)
 }
 
 template<typename Tree> bool GetAnchorAt(const CCoinsViewCacheTest &cache, const uint256 &rt, Tree &tree);
-template<> bool GetAnchorAt(const CCoinsViewCacheTest &cache, const uint256 &rt, SproutMerkleTree &tree) { return cache.GetSproutAnchorAt(rt, tree); }
-template<> bool GetAnchorAt(const CCoinsViewCacheTest &cache, const uint256 &rt, SaplingMerkleTree &tree) { return cache.GetSaplingAnchorAt(rt, tree); }
+template<> bool GetAnchorAt(const CCoinsViewCacheTest &cache, const uint256 &rt, SproutMerkleTree &tree) {
+    return cache.GetSproutAnchorAt(rt, tree);
+}
+template<> bool GetAnchorAt(const CCoinsViewCacheTest &cache, const uint256 &rt, SaplingMerkleTree &tree) {
+    return cache.GetSaplingAnchorAt(rt, tree);
+}
 
 
-void checkNullifierCache(const CCoinsViewCacheTest &cache, const TxWithNullifiers &txWithNullifiers, bool shouldBeInCache) 
-{
+void checkNullifierCache(const CCoinsViewCacheTest &cache, const TxWithNullifiers &txWithNullifiers, bool shouldBeInCache) {
     // Make sure the nullifiers have not gotten mixed up
     EXPECT_TRUE(!cache.GetNullifier(txWithNullifiers.sproutNullifier, SAPLING));
     EXPECT_TRUE(!cache.GetNullifier(txWithNullifiers.saplingNullifier, SPROUT));
@@ -269,8 +263,7 @@ void checkNullifierCache(const CCoinsViewCacheTest &cache, const TxWithNullifier
     EXPECT_TRUE(containsSaplingNullifier == shouldBeInCache);
 }
 
-TEST(TestCoins, nullifier_regression_test)
-{
+TEST(TestCoins, nullifier_regression_test) {
     // Correct behavior:
     {
         CCoinsViewTest base;
@@ -357,9 +350,8 @@ TEST(TestCoins, nullifier_regression_test)
     }
 }
 
-template<typename Tree> 
-void anchorPopRegressionTestImpl(ShieldedType type)
-{
+template<typename Tree>
+void anchorPopRegressionTestImpl(ShieldedType type) {
     // Correct behavior:
     {
         CCoinsViewTest base;
@@ -431,15 +423,13 @@ void anchorPopRegressionTestImpl(ShieldedType type)
     }
 }
 
-TEST(TestCoins, anchor_pop_regression_test)
-{
+TEST(TestCoins, anchor_pop_regression_test) {
     anchorPopRegressionTestImpl<SproutMerkleTree>(SPROUT);
     anchorPopRegressionTestImpl<SaplingMerkleTree>(SAPLING);
 }
 
-template<typename Tree> 
-void anchorRegressionTestImpl(ShieldedType type)
-{
+template<typename Tree>
+void anchorRegressionTestImpl(ShieldedType type) {
     // Correct behavior:
     {
         CCoinsViewTest base;
@@ -520,14 +510,12 @@ void anchorRegressionTestImpl(ShieldedType type)
     }
 }
 
-TEST(TestCoins, anchor_regression_test)
-{
+TEST(TestCoins, anchor_regression_test) {
     anchorRegressionTestImpl<SproutMerkleTree>(SPROUT);
     anchorRegressionTestImpl<SaplingMerkleTree>(SAPLING);
 }
 
-TEST(TestCoins, nullifiers_test)
-{
+TEST(TestCoins, nullifiers_test) {
     CCoinsViewTest base;
     CCoinsViewCacheTest cache(&base);
 
@@ -549,9 +537,8 @@ TEST(TestCoins, nullifiers_test)
     checkNullifierCache(cache3, txWithNullifiers, false);
 }
 
-template<typename Tree> 
-void anchorsFlushImpl(ShieldedType type)
-{
+template<typename Tree>
+void anchorsFlushImpl(ShieldedType type) {
     CCoinsViewTest base;
     uint256 newrt;
     {
@@ -565,7 +552,7 @@ void anchorsFlushImpl(ShieldedType type)
         cache.PushAnchor(tree);
         cache.Flush();
     }
-    
+
     {
         CCoinsViewCacheTest cache(&base);
         Tree tree;
@@ -580,14 +567,12 @@ void anchorsFlushImpl(ShieldedType type)
     }
 }
 
-TEST(TestCoins, anchors_flush_test)
-{
+TEST(TestCoins, anchors_flush_test) {
     anchorsFlushImpl<SproutMerkleTree>(SPROUT);
     anchorsFlushImpl<SaplingMerkleTree>(SAPLING);
 }
 
-TEST(TestCoins, chained_joinsplits)
-{
+TEST(TestCoins, chained_joinsplits) {
     // TODO update this or add a similar test when the SaplingNote class exist
     CCoinsViewTest base;
     CCoinsViewCacheTest cache(&base);
@@ -664,9 +649,8 @@ TEST(TestCoins, chained_joinsplits)
     }
 }
 
-template<typename Tree> 
-void anchorsTestImpl(ShieldedType type)
-{
+template<typename Tree>
+void anchorsTestImpl(ShieldedType type) {
     // TODO: These tests should be more methodical.
     //       Or, integrate with Bitcoin's tests later.
 
@@ -720,7 +704,7 @@ void anchorsTestImpl(ShieldedType type)
         {
             Tree test_tree2;
             GetAnchorAt(cache, newrt, test_tree2);
-            
+
             EXPECT_TRUE(test_tree2.root() == newrt);
         }
 
@@ -735,8 +719,7 @@ void anchorsTestImpl(ShieldedType type)
     }
 }
 
-TEST(TestCoins, anchors_test)
-{
+TEST(TestCoins, anchors_test) {
     anchorsTestImpl<SproutMerkleTree>(SPROUT);
     anchorsTestImpl<SaplingMerkleTree>(SAPLING);
 }
@@ -752,8 +735,7 @@ static const unsigned int NUM_SIMULATION_ITERATIONS = 40000;
 //
 // During the process, booleans are kept to make sure that the randomized
 // operation hits all branches.
-TEST(TestCoins, coins_cache_simulation_test)
-{
+TEST(TestCoins, coins_cache_simulation_test) {
     // Various coverage trackers.
     bool removed_all_caches = false;
     bool reached_4_caches = false;
@@ -857,8 +839,7 @@ TEST(TestCoins, coins_cache_simulation_test)
     EXPECT_TRUE(missed_an_entry);
 }
 
-TEST(TestCoins, coins_coinbase_spends)
-{
+TEST(TestCoins, coins_coinbase_spends) {
     SelectParams(CBaseChainParams::MAIN); // set params explicitly otherwise it would use params set by some past test what could cause bad-txns-coinbase-spend error
     CCoinsViewTest base;
     CCoinsViewCacheTest cache(&base);
@@ -902,8 +883,7 @@ TEST(TestCoins, coins_coinbase_spends)
     }
 }
 
-TEST(TestCoins, ccoins_serialization)
-{
+TEST(TestCoins, ccoins_serialization) {
     // Good example
     CDataStream ss1(ParseHex("0104835800816115944e077fe7c803cfa57f29b36bf87c1d358bb85e"), SER_DISK, CLIENT_VERSION);
     CCoins cc1;

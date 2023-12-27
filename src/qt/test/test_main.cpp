@@ -26,8 +26,7 @@ Q_IMPORT_PLUGIN(qkrcodecs)
 #endif
 
 // This is all you need to run all the tests
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     SetupEnvironment();
     bool fInvalid = false;
 

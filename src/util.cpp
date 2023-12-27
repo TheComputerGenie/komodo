@@ -109,9 +109,9 @@
 //           http://clang.debian.net/status.php?version=3.0&key=CANNOT_FIND_FUNCTION
 namespace boost {
 
-    namespace program_options {
-        std::string to_internal(const std::string&);
-    }
+namespace program_options {
+std::string to_internal(const std::string&);
+}
 
 } // namespace boost
 
@@ -133,8 +133,7 @@ CTranslationInterface translationInterface;
 
 /** Init OpenSSL library multithreading support */
 static CCriticalSection** ppmutexOpenSSL;
-void locking_callback(int mode, int i, const char* file, int line) NO_THREAD_SAFETY_ANALYSIS
-{
+void locking_callback(int mode, int i, const char* file, int line) NO_THREAD_SAFETY_ANALYSIS {
     if (mode & CRYPTO_LOCK) {
         ENTER_CRITICAL_SECTION(*ppmutexOpenSSL[i]);
     } else {
@@ -143,11 +142,9 @@ void locking_callback(int mode, int i, const char* file, int line) NO_THREAD_SAF
 }
 
 // Init
-static class CInit
-{
-public:
-    CInit()
-    {
+static class CInit {
+  public:
+    CInit() {
         // Init OpenSSL library multithreading support
         ppmutexOpenSSL = (CCriticalSection**)OPENSSL_malloc(CRYPTO_num_locks() * sizeof(CCriticalSection*));
         for (int i = 0; i < CRYPTO_num_locks(); i++)
@@ -161,8 +158,7 @@ public:
         // that the config appears to have been loaded and there are no modules/engines available.
         OPENSSL_no_config();
     }
-    ~CInit()
-    {
+    ~CInit() {
         // Shutdown OpenSSL library multithreading support
         CRYPTO_set_locking_callback(NULL);
         for (int i = 0; i < CRYPTO_num_locks(); i++)
@@ -198,8 +194,7 @@ static FILE* fileout = NULL;
 static boost::mutex* mutexDebugLog = NULL;
 static list<string> *vMsgsBeforeOpenLog;
 
-[[noreturn]] void new_handler_terminate()
-{
+[[noreturn]] void new_handler_terminate() {
     // Rather than throwing std::bad-alloc if allocation fails, terminate
     // immediately to (try to) avoid chain corruption.
     // Since LogPrintf may itself allocate memory, set the handler directly
@@ -212,20 +207,17 @@ static list<string> *vMsgsBeforeOpenLog;
     std::terminate();
 };
 
-static int FileWriteStr(const std::string &str, FILE *fp)
-{
+static int FileWriteStr(const std::string &str, FILE *fp) {
     return fwrite(str.data(), 1, str.size(), fp);
 }
 
-static void DebugPrintInit()
-{
+static void DebugPrintInit() {
     assert(mutexDebugLog == NULL);
     mutexDebugLog = new boost::mutex();
     vMsgsBeforeOpenLog = new list<string>;
 }
 
-void OpenDebugLog()
-{
+void OpenDebugLog() {
     boost::call_once(&DebugPrintInit, debugPrintInitFlag);
     boost::mutex::scoped_lock scoped_lock(*mutexDebugLog);
 
@@ -245,10 +237,8 @@ void OpenDebugLog()
     vMsgsBeforeOpenLog = NULL;
 }
 
-bool LogAcceptCategory(const char* category)
-{
-    if (category != NULL)
-    {
+bool LogAcceptCategory(const char* category) {
+    if (category != NULL) {
         if (!fDebug)
             return false;
 
@@ -257,8 +247,7 @@ bool LogAcceptCategory(const char* category)
         // where mapMultiArgs might be deleted before another
         // global destructor calls LogPrint()
         static boost::thread_specific_ptr<set<string>> ptrCategory;
-        if (ptrCategory.get() == NULL)
-        {
+        if (ptrCategory.get() == NULL) {
             const vector<string>& categories = mapMultiArgs["-debug"];
             ptrCategory.reset(new set<string>(categories.begin(), categories.end()));
             // thread_specific_ptr automatically deletes the set when the thread ends.
@@ -267,8 +256,8 @@ bool LogAcceptCategory(const char* category)
 
         // if not debugging everything and not debugging specific category, LogPrint does nothing.
         if (setCategories.count(string("")) == 0 &&
-            setCategories.count(string("1")) == 0 &&
-            setCategories.count(string(category)) == 0)
+                setCategories.count(string("1")) == 0 &&
+                setCategories.count(string(category)) == 0)
             return false;
     }
     return true;
@@ -279,8 +268,7 @@ bool LogAcceptCategory(const char* category)
  * suppress printing of the timestamp when multiple calls are made that don't
  * end in a newline. Initialize it to true, and hold it, in the calling context.
  */
-static std::string LogTimestampStr(const std::string &str, bool *fStartedNewLine)
-{
+static std::string LogTimestampStr(const std::string &str, bool *fStartedNewLine) {
     string strStamped;
 
     if (!fLogTimestamps)
@@ -299,18 +287,14 @@ static std::string LogTimestampStr(const std::string &str, bool *fStartedNewLine
     return strStamped;
 }
 
-int LogPrintStr(const std::string &str)
-{
+int LogPrintStr(const std::string &str) {
     int ret = 0; // Returns total number of characters written
     static bool fStartedNewLine = true;
-    if (fPrintToConsole)
-    {
+    if (fPrintToConsole) {
         // print to console
         ret = fwrite(str.data(), 1, str.size(), stdout);
         fflush(stdout);
-    }
-    else if (fPrintToDebugLog)
-    {
+    } else if (fPrintToDebugLog) {
         boost::call_once(&DebugPrintInit, debugPrintInitFlag);
         boost::mutex::scoped_lock scoped_lock(*mutexDebugLog);
 
@@ -321,9 +305,7 @@ int LogPrintStr(const std::string &str)
             assert(vMsgsBeforeOpenLog);
             ret = strTimestamped.length();
             vMsgsBeforeOpenLog->push_back(strTimestamped);
-        }
-        else
-        {
+        } else {
             // reopen the log file, if requested
             if (fReopenDebugLog) {
                 fReopenDebugLog = false;
@@ -338,33 +320,27 @@ int LogPrintStr(const std::string &str)
     return ret;
 }
 
-static void InterpretNegativeSetting(string name, map<string, string>& mapSettingsRet)
-{
+static void InterpretNegativeSetting(string name, map<string, string>& mapSettingsRet) {
     // interpret -nofoo as -foo=0 (and -nofoo=0 as -foo=1) as long as -foo not set
-    if (name.find("-no") == 0)
-    {
+    if (name.find("-no") == 0) {
         std::string positive("-");
         positive.append(name.begin()+3, name.end());
-        if (mapSettingsRet.count(positive) == 0)
-        {
+        if (mapSettingsRet.count(positive) == 0) {
             bool value = !GetBoolArg(name, false);
             mapSettingsRet[positive] = (value ? "1" : "0");
         }
     }
 }
 
-void ParseParameters(int argc, const char* const argv[])
-{
+void ParseParameters(int argc, const char* const argv[]) {
     mapArgs.clear();
     mapMultiArgs.clear();
 
-    for (int i = 1; i < argc; i++)
-    {
+    for (int i = 1; i < argc; i++) {
         std::string str(argv[i]);
         std::string strValue;
         size_t is_index = str.find('=');
-        if (is_index != std::string::npos)
-        {
+        if (is_index != std::string::npos) {
             strValue = str.substr(is_index+1);
             str = str.substr(0, is_index);
         }
@@ -387,18 +363,16 @@ void ParseParameters(int argc, const char* const argv[])
     }
 
     // New 0.6 features:
-    BOOST_FOREACH(const PAIRTYPE(string,string)& entry, mapArgs)
-    {
+    BOOST_FOREACH(const PAIRTYPE(string,string)& entry, mapArgs) {
         // interpret -nofoo as -foo=0 (and -nofoo=0 as -foo=1) as long as -foo not set
         InterpretNegativeSetting(entry.first, mapArgs);
     }
 }
 
 // split string using by space or comma as a delimiter char
-void SplitStr(const std::string& strVal, std::vector<std::string> &outVals)
-{
+void SplitStr(const std::string& strVal, std::vector<std::string> &outVals) {
     stringstream ss(strVal);
-    
+
     while (!ss.eof()) {
         int c;
         std::string str;
@@ -414,8 +388,7 @@ void SplitStr(const std::string& strVal, std::vector<std::string> &outVals)
     }
 }
 
-void Split(const std::string& strVal, int32_t outsize, uint64_t *outVals, const uint64_t nDefault)
-{
+void Split(const std::string& strVal, int32_t outsize, uint64_t *outVals, const uint64_t nDefault) {
     stringstream ss(strVal);
     vector<uint64_t> vec;
 
@@ -424,8 +397,7 @@ void Split(const std::string& strVal, int32_t outsize, uint64_t *outVals, const 
     while ( ss.peek() == ' ' )
         ss.ignore();
 
-    while ( ss >> i )
-    {
+    while ( ss >> i ) {
         outVals[numVals] = i;
         numVals += 1;
 
@@ -442,30 +414,25 @@ void Split(const std::string& strVal, int32_t outsize, uint64_t *outVals, const 
     else
         nLast = nDefault;
 
-    for ( i = numVals; i < outsize; i++ )
-    {
+    for ( i = numVals; i < outsize; i++ ) {
         outVals[i] = nLast;
     }
 }
 
-std::string GetArg(const std::string& strArg, const std::string& strDefault)
-{
+std::string GetArg(const std::string& strArg, const std::string& strDefault) {
     if (mapArgs.count(strArg))
         return mapArgs[strArg];
     return strDefault;
 }
 
-int64_t GetArg(const std::string& strArg, int64_t nDefault)
-{
+int64_t GetArg(const std::string& strArg, int64_t nDefault) {
     if (mapArgs.count(strArg))
         return atoi64(mapArgs[strArg]);
     return nDefault;
 }
 
-bool GetBoolArg(const std::string& strArg, bool fDefault)
-{
-    if (mapArgs.count(strArg))
-    {
+bool GetBoolArg(const std::string& strArg, bool fDefault) {
+    if (mapArgs.count(strArg)) {
         if (mapArgs[strArg].empty())
             return true;
         return (atoi(mapArgs[strArg]) != 0);
@@ -473,16 +440,14 @@ bool GetBoolArg(const std::string& strArg, bool fDefault)
     return fDefault;
 }
 
-bool SoftSetArg(const std::string& strArg, const std::string& strValue)
-{
+bool SoftSetArg(const std::string& strArg, const std::string& strValue) {
     if (mapArgs.count(strArg))
         return false;
     mapArgs[strArg] = strValue;
     return true;
 }
 
-bool SoftSetBoolArg(const std::string& strArg, bool fValue)
-{
+bool SoftSetBoolArg(const std::string& strArg, bool fValue) {
     if (fValue)
         return SoftSetArg(strArg, std::string("1"));
     else
@@ -504,8 +469,7 @@ std::string HelpMessageOpt(const std::string &option, const std::string &message
            std::string("\n\n");
 }
 
-static std::string FormatException(const std::exception* pex, const char* pszThread)
-{
+static std::string FormatException(const std::exception* pex, const char* pszThread) {
 #ifdef _WIN32
     char pszModule[MAX_PATH] = "";
     GetModuleFileNameA(NULL, pszModule, sizeof(pszModule));
@@ -514,14 +478,13 @@ static std::string FormatException(const std::exception* pex, const char* pszThr
 #endif
     if (pex)
         return strprintf(
-            "EXCEPTION: %s       \n%s       \n%s in %s       \n", typeid(*pex).name(), pex->what(), pszModule, pszThread);
+                   "EXCEPTION: %s       \n%s       \n%s in %s       \n", typeid(*pex).name(), pex->what(), pszModule, pszThread);
     else
         return strprintf(
-            "UNKNOWN EXCEPTION       \n%s in %s       \n", pszModule, pszThread);
+                   "UNKNOWN EXCEPTION       \n%s in %s       \n", pszModule, pszThread);
 }
 
-void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
-{
+void PrintExceptionContinue(const std::exception* pex, const char* pszThread) {
     std::string message = FormatException(pex, pszThread);
     LogPrintf("\n\n************************\n%s\n", message);
     fprintf(stderr, "\n\n************************\n%s\n", message.c_str());
@@ -538,8 +501,7 @@ namespace fs = boost::filesystem;
  * @note Unix: ~/
  * @returns the default path to the application data directory
  */
-boost::filesystem::path GetAppDir()
-{
+boost::filesystem::path GetAppDir() {
     // Windows < Vista: C:\Documents and Settings\Username\Application Data
     // Windows >= Vista: C:\Users\Username\AppData\Roaming
     // Mac: ~/Library/Application Support
@@ -556,13 +518,13 @@ boost::filesystem::path GetAppDir()
         pathRet = fs::path("/");
     else
         pathRet = fs::path(pszHome);
-  #ifdef MAC_OSX
+#ifdef MAC_OSX
     // Mac
     pathRet /= "Library";
     TryCreateDirectory(pathRet);
     pathRet /= "Application Support";
     TryCreateDirectory(pathRet);  // not sure why this is needed as GetDataDir will create the whole path
-  #endif
+#endif
 #endif
     return pathRet;
 }
@@ -574,17 +536,13 @@ boost::filesystem::path GetAppDir()
  * @note Unix: ~/.komodo
  * @returns the default path to the Komodo data directory
  */
-boost::filesystem::path GetDefaultDataDir()
-{    
+boost::filesystem::path GetDefaultDataDir() {
     fs::path pathRet = GetAppDir();
 
 #if defined(_WIN32) || defined(MAC_OSX)
-    if (chainName.isKMD())
-    {
+    if (chainName.isKMD()) {
         pathRet /= "Komodo";
-    }
-    else
-    {
+    } else {
         pathRet /= "Komodo";
         TryCreateDirectory(pathRet);
         pathRet /= chainName.symbol();
@@ -594,7 +552,7 @@ boost::filesystem::path GetDefaultDataDir()
     // Unix
     if (chainName.isKMD())
         return pathRet / ".komodo";
-    else 
+    else
         return pathRet / ".komodo" / chainName.symbol();
 #endif
 }
@@ -604,8 +562,7 @@ static boost::filesystem::path pathCachedNetSpecific;
 static boost::filesystem::path zc_paramsPathCached;
 static CCriticalSection csPathCached;
 
-static boost::filesystem::path ZC_GetBaseParamsDir()
-{
+static boost::filesystem::path ZC_GetBaseParamsDir() {
     // Copied from GetDefaultDataDir and adapter for zcash params.
 
     namespace fs = boost::filesystem;
@@ -634,8 +591,7 @@ static boost::filesystem::path ZC_GetBaseParamsDir()
 #endif
 }
 
-const boost::filesystem::path &ZC_GetParamsDir()
-{
+const boost::filesystem::path &ZC_GetParamsDir() {
     namespace fs = boost::filesystem;
 
     LOCK(csPathCached); // Reuse the same lock as upstream.
@@ -655,8 +611,7 @@ const boost::filesystem::path &ZC_GetParamsDir()
 // Return the user specified export directory.  Create directory if it doesn't exist.
 // If user did not set option, return an empty path.
 // If there is a filesystem problem, throw an exception.
-const boost::filesystem::path GetExportDir()
-{
+const boost::filesystem::path GetExportDir() {
     namespace fs = boost::filesystem;
     fs::path path;
     if (mapArgs.count("-exportdir")) {
@@ -678,8 +633,7 @@ const boost::filesystem::path GetExportDir()
  * @param fNetSpecific if true, adds network-specific subdirectory (i.e. "regtest" or "testnet3")
  * @returns the full OS-specific data directory including Komodo (i.e. "~/.komodo")
  */
-const boost::filesystem::path &GetDataDir(bool fNetSpecific)
-{
+const boost::filesystem::path &GetDataDir(bool fNetSpecific) {
     namespace fs = boost::filesystem;
 
     LOCK(csPathCached);
@@ -688,7 +642,7 @@ const boost::filesystem::path &GetDataDir(bool fNetSpecific)
 
     // This can be called during exceptions by LogPrintf(), so we cache the
     // value so we don't have to do memory allocations after that.
-    if (!path.empty()){
+    if (!path.empty()) {
         return path;
     }
 
@@ -708,20 +662,16 @@ const boost::filesystem::path &GetDataDir(bool fNetSpecific)
     return path;
 }
 
-void ClearDatadirCache()
-{
+void ClearDatadirCache() {
     pathCached = boost::filesystem::path();
     pathCachedNetSpecific = boost::filesystem::path();
 }
 
-boost::filesystem::path GetConfigFile()
-{
+boost::filesystem::path GetConfigFile() {
     char confname[512];
-    if ( !mapArgs.count("-conf") && !chainName.isKMD() ){
+    if ( !mapArgs.count("-conf") && !chainName.isKMD() ) {
         sprintf(confname,"%s.conf",chainName.symbol().c_str());
-    }
-    else
-    {
+    } else {
 #ifdef __APPLE__
         strcpy(confname,"Komodo.conf");
 #else
@@ -729,7 +679,7 @@ boost::filesystem::path GetConfigFile()
 #endif
     }
     boost::filesystem::path pathConfigFile(GetArg("-conf",confname));
-    if (!pathConfigFile.is_complete()){
+    if (!pathConfigFile.is_complete()) {
         pathConfigFile = GetDataDir(false) / pathConfigFile;
     }
 
@@ -738,8 +688,7 @@ boost::filesystem::path GetConfigFile()
 }
 
 void ReadConfigFile(map<string, string>& mapSettingsRet,
-                    map<string, vector<string> >& mapMultiSettingsRet)
-{
+                    map<string, vector<string> >& mapMultiSettingsRet) {
 
     boost::filesystem::ifstream streamConfig(GetConfigFile());
     if (!streamConfig.good())
@@ -747,12 +696,10 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
     set<string> setOptions;
     setOptions.insert("*");
 
-    for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it)
-    {
+    for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it) {
         // Don't overwrite existing settings so command line settings override komodo.conf
         string strKey = string("-") + it->string_key;
-        if (mapSettingsRet.count(strKey) == 0)
-        {
+        if (mapSettingsRet.count(strKey) == 0) {
             mapSettingsRet[strKey] = it->value[0];
             // interpret nofoo=1 as foo=0 (and nofoo=0 as foo=1) as long as foo not set)
             InterpretNegativeSetting(strKey, mapSettingsRet);
@@ -765,26 +712,22 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 }
 
 #ifndef _WIN32
-boost::filesystem::path GetPidFile()
-{
+boost::filesystem::path GetPidFile() {
     boost::filesystem::path pathPidFile(GetArg("-pid", "komodod.pid"));
     if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
     return pathPidFile;
 }
 
-void CreatePidFile(const boost::filesystem::path &path, pid_t pid)
-{
+void CreatePidFile(const boost::filesystem::path &path, pid_t pid) {
     FILE* file = fopen(path.string().c_str(), "w");
-    if (file)
-    {
+    if (file) {
         fprintf(file, "%d\n", pid);
         fclose(file);
     }
 }
 #endif
 
-bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest)
-{
+bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest) {
 #ifdef _WIN32
     return MoveFileExA(src.string().c_str(), dest.string().c_str(),
                        MOVEFILE_REPLACE_EXISTING) != 0;
@@ -799,10 +742,8 @@ bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest)
  * Specifically handles case where path p exists, but it wasn't possible for the user to
  * write to the parent directory.
  */
-bool TryCreateDirectory(const boost::filesystem::path& p)
-{
-    try
-    {
+bool TryCreateDirectory(const boost::filesystem::path& p) {
+    try {
         return boost::filesystem::create_directory(p);
     } catch (const boost::filesystem::filesystem_error&) {
         if (!boost::filesystem::exists(p) || !boost::filesystem::is_directory(p))
@@ -813,20 +754,19 @@ bool TryCreateDirectory(const boost::filesystem::path& p)
     return false;
 }
 
-void FileCommit(FILE *fileout)
-{
+void FileCommit(FILE *fileout) {
     fflush(fileout); // harmless if redundantly called
 #ifdef _WIN32
     HANDLE hFile = (HANDLE)_get_osfhandle(_fileno(fileout));
     FlushFileBuffers(hFile);
 #else
-    #if defined(__linux__) || defined(__NetBSD__)
+#if defined(__linux__) || defined(__NetBSD__)
     fdatasync(fileno(fileout));
-    #elif defined(__APPLE__) && defined(F_FULLFSYNC)
+#elif defined(__APPLE__) && defined(F_FULLFSYNC)
     fcntl(fileno(fileout), F_FULLFSYNC, 0);
-    #else
+#else
     fsync(fileno(fileout));
-    #endif
+#endif
 #endif
 }
 
@@ -907,13 +847,11 @@ void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length) {
 #endif
 }
 
-void ShrinkDebugFile()
-{
+void ShrinkDebugFile() {
     // Scroll debug.log if it's getting too big
     boost::filesystem::path pathLog = GetDataDir() / "debug.log";
     FILE* file = fopen(pathLog.string().c_str(), "r");
-    if (file && boost::filesystem::file_size(pathLog) > 10 * 1000000)
-    {
+    if (file && boost::filesystem::file_size(pathLog) > 10 * 1000000) {
         // Restart the file with some of the end
         std::vector <char> vch(200000,0);
         fseek(file, -((long)vch.size()), SEEK_END);
@@ -921,25 +859,21 @@ void ShrinkDebugFile()
         fclose(file);
 
         file = fopen(pathLog.string().c_str(), "w");
-        if (file)
-        {
+        if (file) {
             fwrite(begin_ptr(vch), 1, nBytes, file);
             fclose(file);
         }
-    }
-    else if (file != NULL)
+    } else if (file != NULL)
         fclose(file);
 }
 
 #ifdef _WIN32
-boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate)
-{
+boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate) {
     namespace fs = boost::filesystem;
 
     char pszPath[MAX_PATH] = "";
 
-    if(SHGetSpecialFolderPathA(NULL, pszPath, nFolder, fCreate))
-    {
+    if(SHGetSpecialFolderPathA(NULL, pszPath, nFolder, fCreate)) {
         return fs::path(pszPath);
     }
 
@@ -970,15 +904,13 @@ boost::filesystem::path GetTempPath() {
 #endif
 }
 
-void runCommand(const std::string& strCommand)
-{
+void runCommand(const std::string& strCommand) {
     int nErr = ::system(strCommand.c_str());
     if (nErr)
         LogPrintf("runCommand error: system(%s) returned %d\n", strCommand, nErr);
 }
 
-void RenameThread(const char* name)
-{
+void RenameThread(const char* name) {
 #if defined(PR_SET_NAME)
     // Only the first 15 characters are used (16 - NUL terminator)
     ::prctl(PR_SET_NAME, name, 0, 0, 0);
@@ -993,8 +925,7 @@ void RenameThread(const char* name)
 #endif
 }
 
-void SetupEnvironment()
-{
+void SetupEnvironment() {
     // On most POSIX systems (e.g. Linux, but not BSD) the environment's locale
     // may be invalid, in which case the "C" locale is used as fallback.
 #if !defined(WIN32) && !defined(MAC_OSX) && !defined(__FreeBSD__) && !defined(__OpenBSD__)
@@ -1012,8 +943,7 @@ void SetupEnvironment()
     boost::filesystem::path::imbue(loc);
 }
 
-bool SetupNetworking()
-{
+bool SetupNetworking() {
 #ifdef _WIN32
     // Initialize Windows Sockets
     WSADATA wsadata;
@@ -1024,8 +954,7 @@ bool SetupNetworking()
     return true;
 }
 
-void SetThreadPriority(int nPriority)
-{
+void SetThreadPriority(int nPriority) {
 #ifdef _WIN32
     SetThreadPriority(GetCurrentThread(), nPriority);
 #else // _WIN32
@@ -1037,15 +966,13 @@ void SetThreadPriority(int nPriority)
 #endif // _WIN32
 }
 
-std::string PrivacyInfo()
-{
+std::string PrivacyInfo() {
     return "\n" +
            FormatParagraph(strprintf(_("In order to ensure you are adequately protecting your privacy when using Zcash, please see <%s>."),
                                      "https://z.cash/support/security/")) + "\n";
 }
 
-std::string LicenseInfo()
-{
+std::string LicenseInfo() {
     return "\n" +
            FormatParagraph(strprintf(_("Copyright (C) 2009-%i The Bitcoin Core Developers"), COPYRIGHT_YEAR)) + "\n" +
            FormatParagraph(strprintf(_("Copyright (C) 2015-%i The Zcash Developers"), COPYRIGHT_YEAR)) + "\n" +
@@ -1060,8 +987,7 @@ std::string LicenseInfo()
            "\n";
 }
 
-int GetNumCores()
-{
+int GetNumCores() {
     return boost::thread::physical_concurrency();
 }
 

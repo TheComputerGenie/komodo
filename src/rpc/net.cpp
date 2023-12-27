@@ -36,8 +36,7 @@
 
 using namespace std;
 
-UniValue getconnectioncount(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue getconnectioncount(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() != 0)
         throw runtime_error(
             "getconnectioncount\n"
@@ -54,8 +53,7 @@ UniValue getconnectioncount(const UniValue& params, bool fHelp, const CPubKey& m
     return (int)vNodes.size();
 }
 
-UniValue ping(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue ping(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() != 0)
         throw runtime_error(
             "ping\n"
@@ -77,8 +75,7 @@ UniValue ping(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return NullUniValue;
 }
 
-UniValue getpeerinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue getpeerinfo(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() != 0)
         throw runtime_error(
             "getpeerinfo\n"
@@ -175,14 +172,12 @@ UniValue getpeerinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
 }
 
 int32_t KOMODO_LONGESTCHAIN;
-int32_t komodo_longestchain()
-{
+int32_t komodo_longestchain() {
     static int32_t depth;
     int32_t ht,n=0,num=0,maxheight=0,height = 0;
     if ( depth < 0 )
         depth = 0;
-    if ( depth == 0 )
-    {
+    if ( depth == 0 ) {
 
         /**
          * Seems here we need to try to lock cs_main, to avoid wrong order of lock (cs_main, cs_vNodes),
@@ -203,8 +198,7 @@ int32_t komodo_longestchain()
             //LOCK(cs_main);
             CopyNodeStats(vstats);
         }
-        BOOST_FOREACH(const CNodeStats& stats, vstats)
-        {
+        BOOST_FOREACH(const CNodeStats& stats, vstats) {
             CNodeStateStats statestats;
             bool fStateStats = GetNodeStateStats(stats.nodeid,statestats);
             if ( statestats.nSyncHeight < 0 )
@@ -224,8 +218,7 @@ int32_t komodo_longestchain()
                 height = ht;
         }
         depth--;
-        if ( num > (n >> 1) )
-        {
+        if ( num > (n >> 1) ) {
             if ( 0 && height != KOMODO_LONGESTCHAIN )
                 fprintf(stderr,"set %s KOMODO_LONGESTCHAIN <- %d\n",chainName.symbol().c_str(),height);
             KOMODO_LONGESTCHAIN = height;
@@ -236,13 +229,12 @@ int32_t komodo_longestchain()
     return(KOMODO_LONGESTCHAIN);
 }
 
-UniValue addnode(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue addnode(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     string strCommand;
     if (params.size() == 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() != 2 ||
-        (strCommand != "onetry" && strCommand != "add" && strCommand != "remove"))
+            (strCommand != "onetry" && strCommand != "add" && strCommand != "remove"))
         throw runtime_error(
             "addnode \"node\" \"add|remove|onetry\"\n"
             "\nAttempts add or remove a node from the addnode list.\n"
@@ -257,8 +249,7 @@ UniValue addnode(const UniValue& params, bool fHelp, const CPubKey& mypk)
 
     string strNode = params[0].get_str();
 
-    if (strCommand == "onetry")
-    {
+    if (strCommand == "onetry") {
         CAddress addr;
         OpenNetworkConnection(addr, NULL, strNode.c_str());
         return NullUniValue;
@@ -270,14 +261,11 @@ UniValue addnode(const UniValue& params, bool fHelp, const CPubKey& mypk)
         if (strNode == *it)
             break;
 
-    if (strCommand == "add")
-    {
+    if (strCommand == "add") {
         if (it != vAddedNodes.end())
             throw JSONRPCError(RPC_CLIENT_NODE_ALREADY_ADDED, "Error: Node already added");
         vAddedNodes.push_back(strNode);
-    }
-    else if(strCommand == "remove")
-    {
+    } else if(strCommand == "remove") {
         if (it == vAddedNodes.end())
             throw JSONRPCError(RPC_CLIENT_NODE_NOT_ADDED, "Error: Node has not been added.");
         vAddedNodes.erase(it);
@@ -286,8 +274,7 @@ UniValue addnode(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return NullUniValue;
 }
 
-UniValue disconnectnode(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue disconnectnode(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() != 1)
         throw runtime_error(
             "disconnectnode \"node\" \n"
@@ -308,8 +295,7 @@ UniValue disconnectnode(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return NullUniValue;
 }
 
-UniValue getaddednodeinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue getaddednodeinfo(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
             "getaddednodeinfo dns ( \"node\" )\n"
@@ -344,19 +330,15 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp, const CPubKey& myp
     bool fDns = params[0].get_bool();
 
     list<string> laddedNodes(0);
-    if (params.size() == 1)
-    {
+    if (params.size() == 1) {
         LOCK(cs_vAddedNodes);
         BOOST_FOREACH(const std::string& strAddNode, vAddedNodes)
-            laddedNodes.push_back(strAddNode);
-    }
-    else
-    {
+        laddedNodes.push_back(strAddNode);
+    } else {
         string strNode = params[1].get_str();
         LOCK(cs_vAddedNodes);
         BOOST_FOREACH(const std::string& strAddNode, vAddedNodes) {
-            if (strAddNode == strNode)
-            {
+            if (strAddNode == strNode) {
                 laddedNodes.push_back(strAddNode);
                 break;
             }
@@ -366,8 +348,7 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp, const CPubKey& myp
     }
 
     UniValue ret(UniValue::VARR);
-    if (!fDns)
-    {
+    if (!fDns) {
         BOOST_FOREACH (const std::string& strAddNode, laddedNodes) {
             UniValue obj(UniValue::VOBJ);
             obj.push_back(Pair("addednode", strAddNode));
@@ -381,8 +362,7 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp, const CPubKey& myp
         vector<CService> vservNode(0);
         if(Lookup(strAddNode.c_str(), vservNode, Params().GetDefaultPort(), fNameLookup, 0))
             laddedAddreses.push_back(make_pair(strAddNode, vservNode));
-        else
-        {
+        else {
             UniValue obj(UniValue::VOBJ);
             obj.push_back(Pair("addednode", strAddNode));
             obj.push_back(Pair("connected", false));
@@ -392,8 +372,7 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp, const CPubKey& myp
     }
 
     LOCK(cs_vNodes);
-    for (list<pair<string, vector<CService> > >::iterator it = laddedAddreses.begin(); it != laddedAddreses.end(); it++)
-    {
+    for (list<pair<string, vector<CService> > >::iterator it = laddedAddreses.begin(); it != laddedAddreses.end(); it++) {
         UniValue obj(UniValue::VOBJ);
         obj.push_back(Pair("addednode", it->first));
 
@@ -404,8 +383,7 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp, const CPubKey& myp
             UniValue node(UniValue::VOBJ);
             node.push_back(Pair("address", addrNode.ToString()));
             BOOST_FOREACH(CNode* pnode, vNodes) {
-                if (pnode->addr == addrNode)
-                {
+                if (pnode->addr == addrNode) {
                     fFound = true;
                     fConnected = true;
                     node.push_back(Pair("connected", pnode->fInbound ? "inbound" : "outbound"));
@@ -424,8 +402,7 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp, const CPubKey& myp
     return ret;
 }
 
-UniValue getnettotals(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue getnettotals(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() > 0)
         throw runtime_error(
             "getnettotals\n"
@@ -440,7 +417,7 @@ UniValue getnettotals(const UniValue& params, bool fHelp, const CPubKey& mypk)
             "\nExamples:\n"
             + HelpExampleCli("getnettotals", "")
             + HelpExampleRpc("getnettotals", "")
-       );
+        );
 
     UniValue obj(UniValue::VOBJ);
     obj.push_back(Pair("totalbytesrecv", CNode::GetTotalBytesRecv()));
@@ -449,11 +426,9 @@ UniValue getnettotals(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return obj;
 }
 
-static UniValue GetNetworksInfo()
-{
+static UniValue GetNetworksInfo() {
     UniValue networks(UniValue::VARR);
-    for(int n=0; n<NET_MAX; ++n)
-    {
+    for(int n=0; n<NET_MAX; ++n) {
         enum Network network = static_cast<enum Network>(n);
         if(network == NET_UNROUTABLE)
             continue;
@@ -470,8 +445,7 @@ static UniValue GetNetworksInfo()
     return networks;
 }
 
-UniValue getdeprecationinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue getdeprecationinfo(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     const CChainParams& chainparams = Params();
     if (fHelp || params.size() != 0 || chainparams.NetworkIDString() != "main")
         throw runtime_error(
@@ -491,14 +465,13 @@ UniValue getdeprecationinfo(const UniValue& params, bool fHelp, const CPubKey& m
     UniValue obj(UniValue::VOBJ);
     obj.push_back(Pair("version", CLIENT_VERSION));
     obj.push_back(Pair("subversion",
-        FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>())));
+                       FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>())));
     obj.push_back(Pair("deprecationheight", DEPRECATION_HEIGHT));
 
     return obj;
 }
 
-UniValue getnetworkinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue getnetworkinfo(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() != 0)
         throw runtime_error(
             "getnetworkinfo\n"
@@ -550,8 +523,7 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
     UniValue localAddresses(UniValue::VARR);
     {
         LOCK(cs_mapLocalHost);
-        BOOST_FOREACH(const PAIRTYPE(CNetAddr, LocalServiceInfo) &item, mapLocalHost)
-        {
+        BOOST_FOREACH(const PAIRTYPE(CNetAddr, LocalServiceInfo) &item, mapLocalHost) {
             UniValue rec(UniValue::VOBJ);
             rec.push_back(Pair("address", item.first.ToString()));
             rec.push_back(Pair("port", item.second.nPort));
@@ -564,26 +536,25 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return obj;
 }
 
-UniValue setban(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue setban(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     string strCommand;
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() < 2 ||
-        (strCommand != "add" && strCommand != "remove"))
+            (strCommand != "add" && strCommand != "remove"))
         throw runtime_error(
-                            "setban \"ip(/netmask)\" \"add|remove\" (bantime) (absolute)\n"
-                            "\nAttempts add or remove a IP/Subnet from the banned list.\n"
-                            "\nArguments:\n"
-                            "1. \"ip(/netmask)\" (string, required) The IP/Subnet (see getpeerinfo for nodes ip) with a optional netmask (default is /32 = single ip)\n"
-                            "2. \"command\"      (string, required) 'add' to add a IP/Subnet to the list, 'remove' to remove a IP/Subnet from the list\n"
-                            "3. \"bantime\"      (numeric, optional) time in seconds how long (or until when if [absolute] is set) the ip is banned (0 or empty means using the default time of 24h which can also be overwritten by the -bantime startup argument)\n"
-                            "4. \"absolute\"     (boolean, optional) If set, the bantime must be a absolute timestamp in seconds since epoch (Jan 1 1970 GMT)\n"
-                            "\nExamples:\n"
-                            + HelpExampleCli("setban", "\"192.168.0.6\" \"add\" 86400")
-                            + HelpExampleCli("setban", "\"192.168.0.0/24\" \"add\"")
-                            + HelpExampleRpc("setban", "\"192.168.0.6\", \"add\" 86400")
-                            );
+            "setban \"ip(/netmask)\" \"add|remove\" (bantime) (absolute)\n"
+            "\nAttempts add or remove a IP/Subnet from the banned list.\n"
+            "\nArguments:\n"
+            "1. \"ip(/netmask)\" (string, required) The IP/Subnet (see getpeerinfo for nodes ip) with a optional netmask (default is /32 = single ip)\n"
+            "2. \"command\"      (string, required) 'add' to add a IP/Subnet to the list, 'remove' to remove a IP/Subnet from the list\n"
+            "3. \"bantime\"      (numeric, optional) time in seconds how long (or until when if [absolute] is set) the ip is banned (0 or empty means using the default time of 24h which can also be overwritten by the -bantime startup argument)\n"
+            "4. \"absolute\"     (boolean, optional) If set, the bantime must be a absolute timestamp in seconds since epoch (Jan 1 1970 GMT)\n"
+            "\nExamples:\n"
+            + HelpExampleCli("setban", "\"192.168.0.6\" \"add\" 86400")
+            + HelpExampleCli("setban", "\"192.168.0.0/24\" \"add\"")
+            + HelpExampleRpc("setban", "\"192.168.0.6\", \"add\" 86400")
+        );
 
     CSubNet subNet;
     CNetAddr netAddr;
@@ -600,8 +571,7 @@ UniValue setban(const UniValue& params, bool fHelp, const CPubKey& mypk)
     if (! (isSubnet ? subNet.IsValid() : netAddr.IsValid()) )
         throw JSONRPCError(RPC_CLIENT_NODE_ALREADY_ADDED, "Error: Invalid IP/Subnet");
 
-    if (strCommand == "add")
-    {
+    if (strCommand == "add") {
         if (isSubnet ? CNode::IsBanned(subNet) : CNode::IsBanned(netAddr))
             throw JSONRPCError(RPC_CLIENT_NODE_ALREADY_ADDED, "Error: IP/Subnet already banned");
 
@@ -618,9 +588,7 @@ UniValue setban(const UniValue& params, bool fHelp, const CPubKey& mypk)
         //disconnect possible nodes
         while(CNode *bannedNode = (isSubnet ? FindNode(subNet) : FindNode(netAddr)))
             bannedNode->fDisconnect = true;
-    }
-    else if(strCommand == "remove")
-    {
+    } else if(strCommand == "remove") {
         if (!( isSubnet ? CNode::Unban(subNet) : CNode::Unban(netAddr) ))
             throw JSONRPCError(RPC_MISC_ERROR, "Error: Unban failed");
     }
@@ -628,23 +596,21 @@ UniValue setban(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return NullUniValue;
 }
 
-UniValue listbanned(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue listbanned(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() != 0)
         throw runtime_error(
-                            "listbanned\n"
-                            "\nList all banned IPs/Subnets.\n"
-                            "\nExamples:\n"
-                            + HelpExampleCli("listbanned", "")
-                            + HelpExampleRpc("listbanned", "")
-                            );
+            "listbanned\n"
+            "\nList all banned IPs/Subnets.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("listbanned", "")
+            + HelpExampleRpc("listbanned", "")
+        );
 
     std::map<CSubNet, int64_t> banMap;
     CNode::GetBanned(banMap);
 
     UniValue bannedAddresses(UniValue::VARR);
-    for (std::map<CSubNet, int64_t>::iterator it = banMap.begin(); it != banMap.end(); it++)
-    {
+    for (std::map<CSubNet, int64_t>::iterator it = banMap.begin(); it != banMap.end(); it++) {
         UniValue rec(UniValue::VOBJ);
         rec.push_back(Pair("address", (*it).first.ToString()));
         rec.push_back(Pair("banned_until", (*it).second));
@@ -654,25 +620,24 @@ UniValue listbanned(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return bannedAddresses;
 }
 
-UniValue clearbanned(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue clearbanned(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() != 0)
         throw runtime_error(
-                            "clearbanned\n"
-                            "\nClear all banned IPs.\n"
-                            "\nExamples:\n"
-                            + HelpExampleCli("clearbanned", "")
-                            + HelpExampleRpc("clearbanned", "")
-                            );
+            "clearbanned\n"
+            "\nClear all banned IPs.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("clearbanned", "")
+            + HelpExampleRpc("clearbanned", "")
+        );
 
     CNode::ClearBanned();
 
     return NullUniValue;
 }
 
-static const CRPCCommand commands[] =
-{ //  category              name                      actor (function)         okSafeMode
-  //  --------------------- ------------------------  -----------------------  ----------
+static const CRPCCommand commands[] = {
+    //  category              name                      actor (function)         okSafeMode
+    //  --------------------- ------------------------  -----------------------  ----------
     { "network",            "getconnectioncount",     &getconnectioncount,     true  },
     { "network",            "getdeprecationinfo",     &getdeprecationinfo,     true  },
     { "network",            "ping",                   &ping,                   true  },
@@ -687,8 +652,7 @@ static const CRPCCommand commands[] =
     { "network",            "clearbanned",            &clearbanned,            true  },
 };
 
-void RegisterNetRPCCommands(CRPCTable &tableRPC)
-{
+void RegisterNetRPCCommands(CRPCTable &tableRPC) {
     for (unsigned int vcidx = 0; vcidx < ARRAYLEN(commands); vcidx++)
         tableRPC.appendCommand(commands[vcidx].name, &commands[vcidx]);
 }

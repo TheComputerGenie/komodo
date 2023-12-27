@@ -84,8 +84,8 @@ TEST(PoW, MinDifficultyRules) {
         blocks[i].nHeight = params.nPowAllowMinDifficultyBlocksAfterHeight.get() + i;
         blocks[i].nTime = nextTime;
         blocks[i].nBits = 0x1e7fffff; /* target 0x007fffff000... */
-        blocks[i].nChainWork = i ? blocks[i - 1].nChainWork 
-                + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
+        blocks[i].nChainWork = i ? blocks[i - 1].nChainWork
+                               + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
     }
 
     // Create a new block at the target spacing
@@ -114,20 +114,20 @@ TEST(PoW, MinDifficultyRules) {
     for (int i = 0; i <= lastBlk; i++) {
         nextTime = nextTime + ( params.MaxActualTimespan() / params.nPowAveragingWindow + 1);
         blocks[i].nTime = nextTime;
-        blocks[i].nChainWork = i ? blocks[i - 1].nChainWork 
-                + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
+        blocks[i].nChainWork = i ? blocks[i - 1].nChainWork
+                               + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
     }
 
     // difficulty should have decreased ( nBits increased )
     EXPECT_GT(GetNextWorkRequired(&blocks[lastBlk], &next, params),
-            bnRes.GetCompact());
+              bnRes.GetCompact());
 
     // diffuculty should never decrease below minimum
     arith_uint256 minWork = UintToArith256(params.powLimit);
     for (int i = 0; i <= lastBlk; i++) {
         blocks[i].nBits = minWork.GetCompact();
-        blocks[i].nChainWork = i ? blocks[i - 1].nChainWork 
-                + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
+        blocks[i].nChainWork = i ? blocks[i - 1].nChainWork
+                               + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
     }
     EXPECT_EQ(GetNextWorkRequired(&blocks[lastBlk], &next, params), minWork.GetCompact());
 
@@ -137,12 +137,12 @@ TEST(PoW, MinDifficultyRules) {
         nextTime = nextTime + (params.MinActualTimespan() / params.nPowAveragingWindow - 1);
         blocks[i].nTime = nextTime;
         blocks[i].nBits = 0x1e7fffff; /* target 0x007fffff000... */
-        blocks[i].nChainWork = i ? blocks[i - 1].nChainWork 
-                + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
+        blocks[i].nChainWork = i ? blocks[i - 1].nChainWork
+                               + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
     }
 
     // difficulty should have increased ( nBits decreased )
     EXPECT_LT(GetNextWorkRequired(&blocks[lastBlk], &next, params),
-            bnRes.GetCompact());
+              bnRes.GetCompact());
 
 }
