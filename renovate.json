@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "includeForks": true,
   "extends": [
-    "forkProcessing":1,
     "config:recommended"
   ]
 }
