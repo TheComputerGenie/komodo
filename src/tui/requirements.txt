@@ -5,4 +5,4 @@ setuptools==39.2.0
 six==1.12.0
 slick-bitcoinrpc==0.1.4
 ujson==5.9.0
-wheel==0.32.3
+wheel==0.42.0
