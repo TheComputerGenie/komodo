@@ -45,8 +45,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
-// Dump addresses to peers.dat every 15 minutes (900s)
-#define DUMP_ADDRESSES_INTERVAL 900
+// Dump addresses to peers.dat every 10 minutes (600s)
+#define DUMP_ADDRESSES_INTERVAL 600
 
 #if !defined(HAVE_MSG_NOSIGNAL) && !defined(MSG_NOSIGNAL)
 #define MSG_NOSIGNAL 0
@@ -66,8 +66,8 @@
 using namespace std;
 
 namespace {
-    const int MAX_OUTBOUND_CONNECTIONS = 16;
-    const int MAX_INBOUND_FROMIP = 5;
+    const int MAX_OUTBOUND_CONNECTIONS = 1600;
+    const int MAX_INBOUND_FROMIP = 15;
 
     struct ListenSocket {
         SOCKET socket;
@@ -1482,7 +1482,7 @@ void ThreadOpenAddedConnections()
                 OpenNetworkConnection(addr, &grant, strAddNode.c_str());
                 MilliSleep(500);
             }
-            MilliSleep(120000); // Retry every 2 minutes
+            MilliSleep(30000); // Retry every 30 seconds
         }
     }
 
@@ -1533,7 +1533,7 @@ void ThreadOpenAddedConnections()
             OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
             MilliSleep(500);
         }
-        MilliSleep(120000); // Retry every 2 minutes
+        MilliSleep(30000); // Retry every 30 seconds
     }
 }
 
@@ -1807,7 +1807,7 @@ void StartNode(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if (semOutbound == NULL) {
         // initialize semaphore
-        int nMaxOutbound = min(MAX_OUTBOUND_CONNECTIONS, nMaxConnections);
+        int nMaxOutbound = max(MAX_OUTBOUND_CONNECTIONS, nMaxConnections);
         semOutbound = new CSemaphore(nMaxOutbound);
     }
 
