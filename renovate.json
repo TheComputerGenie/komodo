@@ -1,8 +1,13 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "includeForks": true,
-  "extends": [
-    "config:recommended"
-  ],
-  "platformAutomerge": true
+    "enabled": true,
+    "includeForks": true,
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "dependencyDashboard": true,
+    "platformAutomerge": true,
+    "rebaseWhen": "conflicted",
+    "assignees": ["@TheComputerGenie"],
+    "extends": [ "config:recommended" ],
+    {
+        "enabledManagers": ["cargo", "pip_requirements", "conan"]
+    }
 }
