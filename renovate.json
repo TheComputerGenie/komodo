@@ -4,5 +4,8 @@
   "extends": [
     "config:recommended"
   ],
+  {
+    "enabledManagers": ["cargo", "pip_requirements", "conan"]
+  }
   "platformAutomerge": true
 }
