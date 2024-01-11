@@ -5,15 +5,15 @@ BASE_CACHE ?= $(BASEDIR)/built
 SDK_PATH ?= $(BASEDIR)/SDKs
 NO_WALLET ?=
 NO_UPNP ?=
-FALLBACK_DOWNLOAD_PATH ?= https://supernet/depends-sources
+FALLBACK_DOWNLOAD_PATH ?= https://media.githubusercontent.com/media/DigitalPrice/depends-sources/main/
 
 BUILD ?= $(shell ./config.guess)
 HOST ?= $(BUILD)
 PATCHES_PATH = $(BASEDIR)/patches
 BASEDIR = $(CURDIR)
 HASH_LENGTH:=11
-DOWNLOAD_CONNECT_TIMEOUT:=10
-DOWNLOAD_RETRIES:=3
+DOWNLOAD_CONNECT_TIMEOUT:=20
+DOWNLOAD_RETRIES:=4
 CRATE_REGISTRY:=vendored-sources
 
 host:=$(BUILD)

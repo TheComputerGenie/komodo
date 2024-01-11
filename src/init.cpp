@@ -130,7 +130,7 @@ static AMQPNotificationInterface* pAMQPNotificationInterface = NULL;
 // anyway.
 #define MIN_CORE_FILEDESCRIPTORS 0
 #else
-#define MIN_CORE_FILEDESCRIPTORS 150
+#define MIN_CORE_FILEDESCRIPTORS 1024
 #endif
 
 /** Used to pass flags to the Bind() function */
@@ -1198,7 +1198,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     int nBind = std::max((int)mapArgs.count("-bind") + (int)mapArgs.count("-whitebind"), 1);
     nMaxConnections = GetArg("-maxconnections", DEFAULT_MAX_PEER_CONNECTIONS);
     //fprintf(stderr,"nMaxConnections %d\n",nMaxConnections);
-    nMaxConnections = std::max(std::min(nMaxConnections, (int)(FD_SETSIZE - nBind - MIN_CORE_FILEDESCRIPTORS)), 0);
+    nMaxConnections = std::max(std::max(nMaxConnections, (int)(FD_SETSIZE - nBind - MIN_CORE_FILEDESCRIPTORS)), 0);
     int nFD = RaiseFileDescriptorLimit(nMaxConnections + MIN_CORE_FILEDESCRIPTORS);
     //fprintf(stderr,"nMaxConnections %d FD_SETSIZE.%d nBind.%d expr.%d \n",nMaxConnections,FD_SETSIZE,nBind,(int)(FD_SETSIZE - nBind - MIN_CORE_FILEDESCRIPTORS));
     if (nFD < MIN_CORE_FILEDESCRIPTORS)
