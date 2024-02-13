@@ -1,7 +1,7 @@
 configobj==5.0.8
 pip==24.0
 pycurl==7.45.2
-setuptools==69.0.3
+setuptools==69.1.0
 six==1.16.0
 slick-bitcoinrpc==0.1.4
 ujson==5.9.0
