@@ -4,6 +4,7 @@
 #include "sodium.h"
 #ifdef __APPLE__
 #include "pow/tromp/osx_barrier.h"
+#define htole32(x) OSSwapHostToLittleInt32(x)
 #endif
 #include "compat/endian.h"
 
@@ -14,7 +15,7 @@
 typedef uint32_t u32;
 typedef unsigned char uchar;
 
-// algorithm parameters, prefixed with W to reduce include file conflicts
+// algorithm parameters, prefixed with W (for Wagner) to reduce include file conflicts
 
 #ifndef WN
 #define WN	200
@@ -34,7 +35,6 @@ static const u32 HASHESPERBLAKE = 512/WN;
 static const u32 HASHOUT = HASHESPERBLAKE*WN/8;
 
 typedef u32 proof[PROOFSIZE];
-
 
 enum verify_code { POW_OK, POW_DUPLICATE, POW_OUT_OF_ORDER, POW_NONZERO_XOR };
 const char *errstr[] = { "OK", "duplicate index", "indices out of order", "nonzero xor" };
@@ -65,7 +65,7 @@ int verifyrec(const crypto_generichash_blake2b_state *ctx, u32 *indices, uchar *
     return vrf1;
   for (int i=0; i < WN/8; i++)
     hash[i] = hash0[i] ^ hash1[i];
-  int i, b = r * DIGITBITS;
+  int i, b = r < WK ? r * DIGITBITS : WN;
   for (i = 0; i < b/8; i++)
     if (hash[i])
       return POW_NONZERO_XOR;
@@ -75,15 +75,8 @@ int verifyrec(const crypto_generichash_blake2b_state *ctx, u32 *indices, uchar *
 }
 
 int compu32(const void *pa, const void *pb) {
-    int32_t retval;
   u32 a = *(u32 *)pa, b = *(u32 *)pb;
-  retval = a<b ? -1 : a==b ? 0 : +1;
-    return(retval);
-/*   if ( retval != 0 )
-        return(retval);
-    else if ( (uint64_t)pa < (uint64_t)pb ) // jl777 prevent nondeterminism
-        return(-1);
-    else return(1);*/
+  return a<b ? -1 : a==b ? 0 : +1;
 }
 
 bool duped(proof prf) {

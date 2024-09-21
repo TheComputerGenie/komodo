@@ -157,6 +157,13 @@ AC_ARG_ENABLE([glibc-back-compat],
   [use_glibc_compat=$enableval],
   [use_glibc_compat=no])
 
+AC_ARG_ENABLE([tromp-avx2],
+  [AS_HELP_STRING([--enable-tromp-avx2],
+  [enable AVX2 blake2 optimizaion in Tromp equihash solver])],
+  [tromp_avx2=$enableval],
+  [tromp_avx2=no])
+
+AC_ARG_WITH([protoc-bindir],[AS_HELP_STRING([--with-protoc-bindir=BIN_DIR],[specify protoc bin path])], [protoc_bin_path=$withval], [])
 AC_ARG_ENABLE([experimental-asm],
   [AS_HELP_STRING([--enable-experimental-asm],
   [Enable experimental assembly routines (default is no)])],
@@ -847,6 +854,7 @@ AM_CONDITIONAL([ENABLE_MINING],[test x$enable_mining = xyes])
 AM_CONDITIONAL([ENABLE_TESTS],[test x$BUILD_TEST = xyes])
 AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
 AM_CONDITIONAL([GLIBC_BACK_COMPAT],[test x$use_glibc_compat = xyes])
+AM_CONDITIONAL([USE_TROMP_AVX2], [test x$tromp_avx2 = xyes])
 AM_CONDITIONAL([HARDEN],[test x$use_hardening = xyes])
 AM_CONDITIONAL([EXPERIMENTAL_ASM],[test x$experimental_asm = xyes])
 AM_CONDITIONAL([ASAN],[test x$use_asan = xyes])

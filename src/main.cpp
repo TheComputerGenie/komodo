@@ -5046,16 +5046,16 @@ bool CheckBlockHeader(int32_t *futureblockp,int32_t height,CBlockIndex *pindex, 
     }
     else if (blockhdr.GetBlockTime() > GetTime() + 60)
     {
-        /*CBlockIndex *tipindex;
-        //fprintf(stderr,"ht.%d future block %u vs time.%u + 60\n",height,(uint32_t)blockhdr.GetBlockTime(),(uint32_t)GetAdjustedTime());
-        if ( (tipindex= chainActive.Tip()) != 0 && tipindex->GetBlockHash() == blockhdr.hashPrevBlock && blockhdr.GetBlockTime() < GetAdjustedTime() + 60 + 5 )
+        CBlockIndex *tipindex;
+        fprintf(stderr,"ht.%d future block %u vs time.%u + 60\n",height,(uint32_t)blockhdr.GetBlockTime(),(uint32_t)GetTime());
+        if ( (tipindex= chainActive.Tip()) != 0 && tipindex->GetBlockHash() == blockhdr.hashPrevBlock && blockhdr.GetBlockTime() < GetTime() + 90 + 5 )
         {
-            //fprintf(stderr,"it is the next block, let's wait for %d seconds\n",GetAdjustedTime() + 60 - blockhdr.GetBlockTime());
-            while ( blockhdr.GetBlockTime() > GetAdjustedTime() + 60 )
+            fprintf(stderr,"it is the next block, let's wait for %ld seconds\n", (blockhdr.GetBlockTime() - (GetTime() + 60)));
+            while ( blockhdr.GetBlockTime() > GetTime() + 60 )
                 sleep(1);
-            //fprintf(stderr,"now its valid\n");
+            fprintf(stderr,"now its valid\n");
         }
-        else*/
+        else
         {
             if (blockhdr.GetBlockTime() < GetTime() + 300)
                 *futureblockp = 1;
