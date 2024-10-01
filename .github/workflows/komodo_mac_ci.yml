@@ -10,7 +10,7 @@ jobs:
 
   macos-build:
     name: MacOS Build
-    runs-on: macos-latest-large
+    runs-on: macos-latest
     
     steps:
       - uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
       # flag for some CC tests transactions - so DO NOT USE THIS CI ARTIFACTS IN PRODUCTION!!!
       - name: Build (macOS)
         run: |
-          ./zcutil/build-mac-dtest.sh -j4
+          ./zcutil/build-mac-dtest.sh -j3
           gtar -czvf komodo-macos.tar.gz src/komodod src/komodo-cli src/wallet-utility src/komodo-tx
         # env:
         #   DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
