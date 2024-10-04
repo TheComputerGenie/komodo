@@ -1,0 +1,33 @@
+name: test copy params
+on:
+  push:
+    branches:
+    - somemaster
+jobs:
+
+  linux-build:
+    name: Linux Build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build (Linux)
+        run: |
+          ./zcutil/fetch-params.sh
+          tar -czvf ZcashParams.tar.gz /home/runner/.zcash-params
+      - name: Upload ZcashParams.tar.gz as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZcashParams
+          path: ZcashParams.tar.gz
+
+  linux-test-bla:
+    name: Test (Some Test)
+    runs-on: ubuntu-24.04
+    needs: linux-build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Display structure of downloaded files
+        uses: actions/download-artifact@v4
+      - name: ls downloaded files
+        run: |
+          mkdir /home/runner/.zcash-params && tar zxvf ZcashParams/ZcashParams.tar.gz -C /home/runner/
