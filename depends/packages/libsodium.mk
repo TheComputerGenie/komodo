@@ -1,9 +1,10 @@
 package=libsodium
-$(package)_version=1.0.18
+$(package)_version=1.0.19
 $(package)_download_path=https://download.libsodium.org/libsodium/releases
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
-$(package)_sha256_hash=6f504490b342a4f8a4c4a02fc9b866cbef8622d5df4e5452b46be121e46636c1
+$(package)_sha256_hash=018d79fe0a045cca07331d37bd0cb57b2e838c51bc48fd837a1472e50068bbea
 $(package)_dependencies=
+$(package)_patches=1.0.15-pubkey-validation.diff 1.0.15-signature-validation.diff
 $(package)_config_opts=
 
 define $(package)_set_vars
@@ -16,6 +17,8 @@ define $(package)_set_vars
 endef
 
 define $(package)_preprocess_cmds
+  patch -p1 < $($(package)_patch_dir)/1.0.15-pubkey-validation.diff && \
+  patch -p1 < $($(package)_patch_dir)/1.0.15-signature-validation.diff && \
   cd $($(package)_build_subdir); ./autogen.sh
 endef
 
