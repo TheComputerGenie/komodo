@@ -30,7 +30,7 @@ jobs:
         id: shortify_commit
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install deps (Linux)
         env:
@@ -80,7 +80,7 @@ jobs:
     runs-on: macos-latest-large
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Workaround for https://github.com/actions/setup-python/issues/577
       - name: Clean up binaries and links (macOS)
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps (Windows)
         env:
           DEBIAN_FRONTEND: noninteractive
