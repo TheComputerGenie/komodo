@@ -15,7 +15,7 @@ jobs:
           ./zcutil/fetch-params.sh
           tar -czvf ZcashParams.tar.gz /home/runner/.zcash-params
       - name: Upload ZcashParams.tar.gz as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ZcashParams
           path: ZcashParams.tar.gz
@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Display structure of downloaded files
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
       - name: ls downloaded files
         run: |
           mkdir /home/runner/.zcash-params && tar zxvf ZcashParams/ZcashParams.tar.gz -C /home/runner/
