@@ -11,7 +11,7 @@ on:
 jobs:
   linux-build:
     name: Linux Build
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
       - name: Install deps (Linux)
@@ -44,7 +44,7 @@ jobs:
   linux-test-dice-token-reards-faucet-cc:
     if: ${{ false }}
     name: Test (Linux/Dice, Token, Faucet, Rewards)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: linux-build
     steps:
       - uses: actions/checkout@v4
@@ -81,7 +81,7 @@ jobs:
   linux-test-oracles:
     if: ${{ false }}
     name: Test (Linux/OraclesCC)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: linux-build
     steps:
       - uses: actions/checkout@v4
@@ -117,7 +117,7 @@ jobs:
   linux-test-baserpc:
     if: ${{ false }}
     name: Test (Linux/BasicRPC)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: linux-build
     steps:
       - uses: actions/checkout@v4
@@ -153,7 +153,7 @@ jobs:
   linux-test-channels:
     if: ${{ false }}
     name: Test (Linux/ChannelsCC)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: linux-build
     steps:
       - uses: actions/checkout@v4
@@ -189,7 +189,7 @@ jobs:
   linux-test-heir:
     if: ${{ false }}
     name: Test (Linux/HeirCC)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: linux-build
     steps:
       - uses: actions/checkout@v4
